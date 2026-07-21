@@ -82,19 +82,10 @@ function GuestView() {
 }
 
 export default function App() {
-  const hash = window.location.hash
-  const isGuestPage = hash.startsWith('#/invitation/') || new URLSearchParams(window.location.search).has('wedding')
+  const params = new URLSearchParams(window.location.search)
+  const isGuestPage = params.has('wedding')
 
   if (isGuestPage) {
-    if (hash.startsWith('#/invitation/')) {
-      const u = new URL(hash.slice(1), window.location.origin)
-      const weddingId = u.pathname.replace('/invitation/', '').split('/')[0]
-      const guestId = u.searchParams.get('guest')
-      let qs = 'wedding=' + encodeURIComponent(weddingId)
-      if (guestId) qs += '&guest=' + encodeURIComponent(guestId)
-      window.location.replace('?' + qs)
-      return null
-    }
     return (
       <WeddingProvider>
         <GuestView />

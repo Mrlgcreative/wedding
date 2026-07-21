@@ -232,12 +232,12 @@ export default function GuestManager() {
             <input
               className="flex-1 rounded-lg border bg-white p-2 text-sm"
               readOnly
-              value={`${wedding.website || window.location.origin}/#/invitation/${wedding.id}`}
+              value={`${wedding.website || window.location.origin}?wedding=${wedding.id}`}
             />
             <button
               onClick={() =>
                 navigator.clipboard.writeText(
-                  `${wedding.website || window.location.origin}/#/invitation/${wedding.id}`
+                  `${wedding.website || window.location.origin}?wedding=${wedding.id}`
                 )
               }
               className="rounded-lg border bg-white px-5 py-2 text-sm font-medium transition-colors hover:bg-gray-50"
