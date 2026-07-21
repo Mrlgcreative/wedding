@@ -282,13 +282,35 @@ export const api = {
   },
   photos: {
     list: async (weddingId: string) => {
-      const res = await request<{ data: Record<string, unknown>[] }>('GET', `photos?wedding_id=${weddingId}`)
-      return res.data.map(fromForgePhoto)
+      const res = await fetch(`${FORGE_BASE}/photos?wedding_id=${weddingId}`, {
+        headers: { 'x-api-key': FORGE_API_KEY },
+      })
+      if (!res.ok) return []
+      const json = await res.json()
+      const items = Array.isArray(json) ? json : json.data ?? []
+      try { return items.map(fromForgePhoto) } catch { return [] }
     },
     save: async (weddingId: string, url: string, type: string, sortOrder: number) => {
-      const p = await request<Record<string, unknown>>('POST', 'photos', toForgePhoto(weddingId, url, type, sortOrder))
-      return fromForgePhoto(p)
+      const body = toForgePhoto(weddingId, url, type, sortOrder)
+      const res = await fetch(`${FORGE_BASE}/photos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': FORGE_API_KEY },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(`Photo save failed: ${res.status} ${text.slice(0, 500)}`)
+      }
+      const json = await res.json()
+      console.log('Photo save response:', json)
+      try { return fromForgePhoto(json) } catch { return fromForgePhoto(json.data ?? json) }
     },
-    remove: (id: string) => request<void>('DELETE', `photos/${id}`),
+    remove: async (id: string) => {
+      const res = await fetch(`${FORGE_BASE}/photos/${id}`, {
+        method: 'DELETE',
+        headers: { 'X-Api-Key': FORGE_API_KEY },
+      })
+      if (!res.ok) throw new Error(`Photo delete failed: ${res.status}`)
+    },
   },
 }

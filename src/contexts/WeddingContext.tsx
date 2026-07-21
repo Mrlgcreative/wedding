@@ -100,7 +100,7 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
         if (oldHero) await api.photos.remove(oldHero.id)
         await api.photos.save(weddingId, current.photos.hero, 'hero', 0)
       } catch (e) {
-        console.error('Erreur sauvegarde photo:', e)
+        console.error('⚠️ ERREUR sauvegarde photo (la photo ne sera pas visible):', e)
       }
     }
   }
