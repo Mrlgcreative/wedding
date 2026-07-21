@@ -16,6 +16,10 @@ function toForgeWedding(w: WeddingData) {
     countdown_enabled: w.countdown.enabled,
     story: w.story ?? '',
     website: w.website ?? '',
+    events_json: JSON.stringify(w.events),
+    dress_code_json: JSON.stringify(w.dressCode),
+    photos_hero: w.photos?.hero ?? '',
+    photos_gallery: JSON.stringify(w.photos?.gallery ?? []),
   }
 }
 
@@ -27,6 +31,16 @@ function fromForgeWedding(w: Record<string, unknown>): WeddingData {
   const fields = (item?.data && typeof item.data === 'object' && !Array.isArray(item.data)
     ? item.data
     : (item ?? w)) as Record<string, unknown>
+  let events: EventDetails[] = []
+  try { events = JSON.parse((fields.events_json as string) ?? '[]') } catch { events = [] }
+  let dressCode: DressCode = {
+    theme: '',
+    instructions: '',
+    palette: { primary: '#1a3c34', secondary: '#d4af37', accent: '#e8d5c4', background: '#faf6f1', text: '#2d2d2d' },
+  }
+  try { dressCode = JSON.parse((fields.dress_code_json as string) ?? '') } catch { /* keep default */ }
+  let gallery: string[] = []
+  try { gallery = JSON.parse((fields.photos_gallery as string) ?? '[]') } catch { gallery = [] }
   return {
     id: (item?.id as string) ?? (fields.id as string) ?? '',
     template: (fields.template as WeddingData['template']) ?? 'classic',
@@ -36,11 +50,11 @@ function fromForgeWedding(w: Record<string, unknown>): WeddingData {
     date: (fields.date as string) ?? '',
     address: (fields.address as string) ?? '',
     countdown: { enabled: (fields.countdown_enabled as boolean) ?? true, label: 'Notre mariage' },
-    events: [],
-    dressCode: {
-      theme: '',
-      instructions: '',
-      palette: { primary: '#1a3c34', secondary: '#d4af37', accent: '#e8d5c4', background: '#faf6f1', text: '#2d2d2d' },
+    events,
+    dressCode,
+    photos: {
+      hero: (fields.photos_hero as string) ?? '',
+      gallery,
     },
     story: (fields.story as string) ?? '',
     website: (fields.website as string) ?? '',
