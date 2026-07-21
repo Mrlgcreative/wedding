@@ -54,11 +54,19 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
         const { data: weddings } = await api.wedding.list()
         if (weddings?.length) {
           const weddingId = weddings[0].id
-          const [w, g] = await Promise.all([
+          const [w, g, photos] = await Promise.all([
             api.wedding.get(weddingId),
             api.guests.list(weddingId),
+            api.photos.list(weddingId).catch(() => []),
           ])
-          setWedding(w as unknown as WeddingData)
+          const wedding = w as unknown as WeddingData
+          if (photos.length > 0) {
+            wedding.photos = {
+              hero: photos.find((p: { type: string }) => p.type === 'hero')?.url ?? wedding.photos?.hero ?? '',
+              gallery: photos.filter((p: { type: string }) => p.type === 'gallery').map((p: { url: string }) => p.url),
+            }
+          }
+          setWedding(wedding)
           setGuests(g.data)
           setPersisted(true)
         }
@@ -83,6 +91,12 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     } else if (current.id) {
       await api.wedding.update(current.id, current)
     }
+    if (current.id && current.photos?.hero) {
+      const existing = await api.photos.list(current.id).catch(() => [])
+      const oldHero = existing.find((p: { type: string }) => p.type === 'hero')
+      if (oldHero) await api.photos.remove(oldHero.id).catch(() => {})
+      await api.photos.save(current.id, current.photos.hero, 'hero', 0).catch(() => {})
+    }
   }
 
   const updateWedding = async (data: WeddingData) => {
@@ -101,6 +115,12 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
       } catch {
         // silencieux
       }
+    }
+    if (data.id && data.photos?.hero) {
+      const existing = await api.photos.list(data.id).catch(() => [])
+      const oldHero = existing.find((p: { type: string }) => p.type === 'hero')
+      if (oldHero) await api.photos.remove(oldHero.id).catch(() => {})
+      await api.photos.save(data.id, data.photos.hero, 'hero', 0).catch(() => {})
     }
   }
 
