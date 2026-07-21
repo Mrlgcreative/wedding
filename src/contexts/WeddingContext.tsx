@@ -5,6 +5,8 @@ import { api } from '../api/api'
 const defaultWedding: WeddingData = {
   id: crypto.randomUUID(),
   template: 'classic',
+  fontPair: 'classic',
+  coupleFontSize: 2.5,
   couple: { partner1: '', partner2: '' },
   date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
   address: '',
@@ -32,6 +34,7 @@ interface WeddingContextType {
   saveWedding: () => Promise<void>
   updateWedding: (data: WeddingData) => Promise<void>
   addGuest: (guest: Guest) => Promise<void>
+  deleteGuest: (id: string) => Promise<void>
   addRSVP: (rsvp: RSVP) => Promise<void>
 }
 
@@ -102,8 +105,13 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
   }
 
   const addGuest = async (guest: Guest) => {
-    await api.guests.save(guest)
-    setGuests((prev) => [...prev, guest])
+    const created = await api.guests.save(guest)
+    setGuests((prev) => [...prev, { ...guest, id: created.id }])
+  }
+
+  const deleteGuest = async (id: string) => {
+    await api.guests.delete(id)
+    setGuests((prev) => prev.filter((g) => g.id !== id))
   }
 
   const addRSVP = async (rsvp: RSVP) => {
@@ -112,7 +120,7 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <WeddingContext value={{ wedding, guests, rsvps, loading, error, persisted, setLocalWedding, saveWedding, updateWedding, addGuest, addRSVP }}>
+    <WeddingContext value={{ wedding, guests, rsvps, loading, error, persisted, setLocalWedding, saveWedding, updateWedding, addGuest, deleteGuest, addRSVP }}>
       {children}
     </WeddingContext>
   )

@@ -42,11 +42,11 @@ export default function MinimalistTemplate({ data }: TemplateProps) {
           <LineFrame>
             <span className="text-[9px] uppercase tracking-[0.5em] opacity-40">Wedding</span>
             <div className="mt-10 space-y-1">
-              <h1 className="text-4xl font-light tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="font-couple font-light tracking-tight" style={{ fontSize: 'var(--font-couple-size)' }}>
                 {couple.partner1}
               </h1>
               <p className="text-xs opacity-30">—</p>
-              <h1 className="text-4xl font-light tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="font-couple font-light tracking-tight" style={{ fontSize: 'var(--font-couple-size)' }}>
                 {couple.partner2}
               </h1>
             </div>

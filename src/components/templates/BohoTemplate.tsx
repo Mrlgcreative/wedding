@@ -56,7 +56,7 @@ export default function BohoTemplate({ data }: TemplateProps) {
 
           <WreathFrame>
             <span className="mt-4 font-serif text-xs tracking-[0.35em] uppercase opacity-70">Save the date</span>
-            <h1 className="mt-5 font-serif text-4xl font-light italic sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 font-couple font-light italic" style={{ fontSize: 'var(--font-couple-size)' }}>
               {couple.partner1}
             </h1>
             <div className="my-3 flex items-center gap-3">
@@ -64,7 +64,7 @@ export default function BohoTemplate({ data }: TemplateProps) {
               <span className="font-serif text-lg italic opacity-40">&</span>
               <span className="h-px w-8 bg-white/30" />
             </div>
-            <h1 className="font-serif text-4xl font-light italic sm:text-5xl lg:text-6xl">
+            <h1 className="font-couple font-light italic" style={{ fontSize: 'var(--font-couple-size)' }}>
               {couple.partner2}
             </h1>
             <p className="mt-5 font-serif text-sm tracking-wide opacity-80">{formatDate(date)}</p>

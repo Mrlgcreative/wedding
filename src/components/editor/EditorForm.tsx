@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { WeddingData, TemplateType } from '../../types/wedding'
+import type { WeddingData, TemplateType, FontPairId } from '../../types/wedding'
+import { fontPairs } from '../../types/wedding'
 import { useWedding } from '../../hooks/useWedding'
 import QRCodeSection from './QRCodeSection'
 
@@ -51,6 +52,39 @@ export default function EditorForm() {
               <span className="mt-1 block text-xs opacity-60">{t.desc}</span>
             </button>
           ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-serif text-xl font-light">Police d'écriture</h2>
+        <div className="mt-4">
+          <select
+            value={wedding.fontPair}
+            onChange={(e) => set({ fontPair: e.target.value as FontPairId })}
+            className="w-full rounded-lg border p-3 text-base"
+          >
+            {fontPairs.map((fp) => (
+              <option key={fp.id} value={fp.id} style={{ fontFamily: fp.headingStack }}>
+                {fp.label} — {fp.heading} + {fp.body}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-serif text-xl font-light">Taille des noms</h2>
+        <div className="mt-4 flex items-center gap-4">
+          <input
+            type="range"
+            min="1"
+            max="6"
+            step="0.25"
+            value={wedding.coupleFontSize}
+            onChange={(e) => set({ coupleFontSize: parseFloat(e.target.value) })}
+            className="flex-1 accent-gray-900"
+          />
+          <span className="w-12 text-right text-sm tabular-nums">{wedding.coupleFontSize}rem</span>
         </div>
       </section>
 

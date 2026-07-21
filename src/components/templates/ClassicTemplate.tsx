@@ -17,7 +17,6 @@ export default function ClassicTemplate({ data }: TemplateProps) {
   const { couple, date, events, dressCode, story, photos } = data
   const palette = dressCode.palette
   const [countdown, setCountdown] = useState(getCountdown(date))
-
   useEffect(() => {
     const timer = setInterval(() => setCountdown(getCountdown(date)), 1000)
     return () => clearInterval(timer)
@@ -38,11 +37,11 @@ export default function ClassicTemplate({ data }: TemplateProps) {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
           <ArchFrame>
             <span className="font-serif text-sm tracking-[0.35em] uppercase opacity-80">Mariage</span>
-            <h1 className="mt-5 font-serif text-4xl font-light tracking-wide sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 font-couple font-light tracking-wide" style={{ fontSize: 'var(--font-couple-size)' }}>
               {couple.partner1}
             </h1>
             <span className="my-3 font-serif text-2xl opacity-50">&</span>
-            <h1 className="font-serif text-4xl font-light tracking-wide sm:text-5xl lg:text-6xl">
+            <h1 className="font-couple font-light tracking-wide" style={{ fontSize: 'var(--font-couple-size)' }}>
               {couple.partner2}
             </h1>
             <div className="mt-6 h-px w-16 bg-white/50" />

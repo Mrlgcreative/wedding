@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import type { AppTab } from './types/wedding'
 import EditorForm from './components/editor/EditorForm'
+import GuestManager from './components/editor/GuestManager'
 import GuestInvitation from './components/guest/GuestInvitation'
 import { WeddingProvider, useWeddingContext } from './contexts/WeddingContext'
 
 const tabs: { id: AppTab; label: string }[] = [
   { id: 'editor', label: 'Éditeur Organisateur' },
+  { id: 'guests', label: 'Invités' },
   { id: 'guest', label: 'Vue Invité' },
 ]
 
@@ -57,6 +59,11 @@ function AppContent() {
               <h2 className="mb-8 font-serif text-2xl font-light">Personnaliser l'invitation</h2>
               <EditorForm />
             </div>
+          ) : activeTab === 'guests' ? (
+            <div className="rounded-xl border p-6 sm:p-10">
+              <h2 className="mb-8 font-serif text-2xl font-light">Gestion des invités</h2>
+              <GuestManager />
+            </div>
           ) : (
             <GuestInvitation />
           )}
@@ -66,7 +73,25 @@ function AppContent() {
   )
 }
 
+function GuestView() {
+  return (
+    <div className="min-h-screen bg-white">
+      <GuestInvitation />
+    </div>
+  )
+}
+
 export default function App() {
+  const isGuestPage = window.location.pathname.startsWith('/invitation/')
+
+  if (isGuestPage) {
+    return (
+      <WeddingProvider>
+        <GuestView />
+      </WeddingProvider>
+    )
+  }
+
   return (
     <WeddingProvider>
       <AppContent />

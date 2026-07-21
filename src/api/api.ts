@@ -1,12 +1,14 @@
 const FORGE_BASE = import.meta.env.VITE_FORGE_PROJECT ?? ''
 const FORGE_API_KEY = import.meta.env.VITE_FORGE_API_KEY ?? ''
 
-import type { WeddingData, Guest, RSVP, EventDetails, DressCode } from '../types/wedding'
+import type { WeddingData, Guest, RSVP, EventDetails, DressCode, EventType } from '../types/wedding'
 
 function toForgeWedding(w: WeddingData) {
   const dateStr = w.date ? new Date(w.date).toISOString() : new Date().toISOString()
   return {
     template: w.template,
+    font_pair: w.fontPair,
+    couple_font_size: w.coupleFontSize,
     partner1: w.couple.partner1,
     partner2: w.couple.partner2,
     date: dateStr,
@@ -18,21 +20,30 @@ function toForgeWedding(w: WeddingData) {
 }
 
 function fromForgeWedding(w: Record<string, unknown>): WeddingData {
+  const hasOwnId = !!(w.id as string)
+  const item = hasOwnId
+    ? w
+    : (Array.isArray(w.data) ? w.data[0] : w.data) as Record<string, unknown> | undefined
+  const fields = (item?.data && typeof item.data === 'object' && !Array.isArray(item.data)
+    ? item.data
+    : (item ?? w)) as Record<string, unknown>
   return {
-    id: w.id as string,
-    template: (w.template as WeddingData['template']) ?? 'classic',
-    couple: { partner1: (w.partner1 as string) ?? '', partner2: (w.partner2 as string) ?? '' },
-    date: (w.date as string) ?? '',
-    address: (w.address as string) ?? '',
-    countdown: { enabled: (w.countdown_enabled as boolean) ?? true, label: 'Notre mariage' },
+    id: (item?.id as string) ?? (fields.id as string) ?? '',
+    template: (fields.template as WeddingData['template']) ?? 'classic',
+    fontPair: (fields.font_pair as WeddingData['fontPair']) ?? 'classic',
+    coupleFontSize: (fields.couple_font_size as number) ?? 2.5,
+    couple: { partner1: (fields.partner1 as string) ?? '', partner2: (fields.partner2 as string) ?? '' },
+    date: (fields.date as string) ?? '',
+    address: (fields.address as string) ?? '',
+    countdown: { enabled: (fields.countdown_enabled as boolean) ?? true, label: 'Notre mariage' },
     events: [],
     dressCode: {
       theme: '',
       instructions: '',
       palette: { primary: '#1a3c34', secondary: '#d4af37', accent: '#e8d5c4', background: '#faf6f1', text: '#2d2d2d' },
     },
-    story: (w.story as string) ?? '',
-    website: (w.website as string) ?? '',
+    story: (fields.story as string) ?? '',
+    website: (fields.website as string) ?? '',
   }
 }
 
@@ -41,21 +52,30 @@ function toForgeGuest(g: Guest) {
     wedding_id: g.weddingId,
     name: g.name,
     email: g.email,
-    phone: g.phone ?? '',
+    phone: g.phone ?? null,
     invited_plus_one: g.invitedPlusOne,
     status: g.status,
+    event_types: g.eventTypes ?? [],
   }
 }
 
 function fromForgeGuest(g: Record<string, unknown>): Guest {
+  const hasOwnId = !!(g.id as string)
+  const item = hasOwnId
+    ? g
+    : (Array.isArray(g.data) ? g.data[0] : g.data) as Record<string, unknown> | undefined
+  const fields = (item?.data && typeof item.data === 'object' && !Array.isArray(item.data)
+    ? item.data
+    : (item ?? g)) as Record<string, unknown>
   return {
-    id: (g.id as string) ?? '',
-    name: (g.name as string) ?? '',
-    email: (g.email as string) ?? '',
-    phone: (g.phone as string) ?? '',
-    invitedPlusOne: (g.invited_plus_one as boolean) ?? false,
-    status: (g.status as Guest['status']) ?? 'pending',
-    weddingId: (g.wedding_id as string) ?? '',
+    id: (item?.id as string) ?? (fields.id as string) ?? '',
+    name: (fields.name as string) ?? '',
+    email: (fields.email as string) ?? '',
+    phone: (fields.phone as string) ?? '',
+    invitedPlusOne: (fields.invited_plus_one as boolean) ?? false,
+    status: (fields.status as Guest['status']) ?? 'pending',
+    weddingId: (fields.wedding_id as string) ?? '',
+    eventTypes: (fields.event_types as EventType[]) ?? [],
   }
 }
 
@@ -159,7 +179,10 @@ async function request<T>(method: string, table: string, body?: unknown): Promis
     },
     ...(body ? { body: JSON.stringify(body) } : {}),
   })
-  if (!res.ok) throw new Error(`Forge API error: ${res.status} ${res.statusText}`)
+  if (!res.ok) {
+    const bodyText = await res.text().catch(() => '')
+    throw new Error(`Forge API error: ${res.status} ${res.statusText} — ${bodyText}`)
+  }
   return res.json()
 }
 

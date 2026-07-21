@@ -5,8 +5,74 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
+@font-face {
+  font-family: "Bergstena Script";
+  src: url("/fonts/BergstenaScript_PERSONAL_USE_ONLY.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bergstena Decorated";
+  src: url("/fonts/BergstenaDecorated_PERSONAL_USE_ONLY.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bergstena Swashed";
+  src: url("/fonts/BergstenaSwashed_PERSONAL_USE_ONLY.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Daisy";
+  src: url("/fonts/Daisy.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Daisy Regular";
+  src: url("/fonts/DaisyRegular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Daisy Display";
+  src: url("/fonts/DaisyDisplay.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Daisy Display Regular";
+  src: url("/fonts/DaisyDisplayRegular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mea Culpa";
+  src: url("/fonts/MeaCulpa-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Remington";
+  src: url("/fonts/Remington.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Stay Love";
+  src: url("/fonts/StayLove.ttf") format("truetype");
+  font-display: swap;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .font-couple {
+    font-family: var(--font-couple);
   }
 }

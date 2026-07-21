@@ -2,6 +2,7 @@ import { useWedding } from '../../hooks/useWedding'
 import { ClassicTemplate, BohoTemplate, MinimalistTemplate } from '../templates'
 import RSVPForm from './RSVPForm'
 import GuestQRCode from './GuestQRCode'
+import { fontPairs } from '../../types/wedding'
 import type { RSVP } from '../../types/wedding'
 
 const templates = { classic: ClassicTemplate, boho: BohoTemplate, minimalist: MinimalistTemplate } as const
@@ -22,6 +23,7 @@ export default function GuestInvitation() {
 
   const palette = wedding.dressCode.palette
   const Template = templates[wedding.template]
+  const font = fontPairs.find((f) => f.id === (wedding.fontPair ?? 'classic')) ?? fontPairs[0]
 
   const openMap = (address: string) => {
     window.open(`https://www.google.com/maps/search/${encodeURIComponent(address)}`, '_blank')
@@ -39,7 +41,7 @@ export default function GuestInvitation() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: palette.background }}>
+    <div className="min-h-screen" style={{ backgroundColor: palette.background, '--font-couple': font.headingStack, '--font-couple-size': `${wedding.coupleFontSize}rem` } as React.CSSProperties}>
       {guestName !== 'Invité' && (
         <div className="bg-white/80 border-b text-center py-2 text-sm" style={{ borderColor: palette.accent }}>
           Bienvenue, <span className="font-semibold">{guestName}</span>
