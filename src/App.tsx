@@ -82,7 +82,8 @@ function GuestView() {
 }
 
 export default function App() {
-  const isGuestPage = window.location.pathname.startsWith('/invitation/')
+  const params = new URLSearchParams(window.location.search)
+  const isGuestPage = params.has('wedding')
 
   if (isGuestPage) {
     return (
