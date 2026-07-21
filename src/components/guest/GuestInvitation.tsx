@@ -8,7 +8,15 @@ import type { RSVP } from '../../types/wedding'
 const templates = { classic: ClassicTemplate, boho: BohoTemplate, minimalist: MinimalistTemplate } as const
 
 export default function GuestInvitation() {
-  const { wedding, guests, addRSVP } = useWedding()
+  const { wedding, guests, addRSVP, loading } = useWedding()
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: wedding.dressCode.palette.background }}>
+        <p className="font-serif text-lg opacity-50">Chargement...</p>
+      </div>
+    )
+  }
 
   const params = new URLSearchParams(window.location.search)
   const urlGuestId = params.get('guest')
