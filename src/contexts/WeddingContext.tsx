@@ -94,10 +94,14 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
       await api.wedding.update(current.id, current)
     }
     if (weddingId && current.photos?.hero) {
-      const existing = await api.photos.list(weddingId).catch(() => [])
-      const oldHero = existing.find((p: { type: string }) => p.type === 'hero')
-      if (oldHero) await api.photos.remove(oldHero.id).catch(() => {})
-      await api.photos.save(weddingId, current.photos.hero, 'hero', 0).catch(() => {})
+      try {
+        const existing = await api.photos.list(weddingId)
+        const oldHero = existing.find((p: { type: string }) => p.type === 'hero')
+        if (oldHero) await api.photos.remove(oldHero.id)
+        await api.photos.save(weddingId, current.photos.hero, 'hero', 0)
+      } catch (e) {
+        console.error('Erreur sauvegarde photo:', e)
+      }
     }
   }
 
@@ -121,10 +125,14 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
       }
     }
     if (weddingId && data.photos?.hero) {
-      const existing = await api.photos.list(weddingId).catch(() => [])
-      const oldHero = existing.find((p: { type: string }) => p.type === 'hero')
-      if (oldHero) await api.photos.remove(oldHero.id).catch(() => {})
-      await api.photos.save(weddingId, data.photos.hero, 'hero', 0).catch(() => {})
+      try {
+        const existing = await api.photos.list(weddingId)
+        const oldHero = existing.find((p: { type: string }) => p.type === 'hero')
+        if (oldHero) await api.photos.remove(oldHero.id)
+        await api.photos.save(weddingId, data.photos.hero, 'hero', 0)
+      } catch (e) {
+        console.error('Erreur sauvegarde photo:', e)
+      }
     }
   }
 

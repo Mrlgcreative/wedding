@@ -35,16 +35,13 @@ export default function GuestApp() {
           api.dressCode.get(weddingId),
           api.photos.list(weddingId),
         ])
+        const heroUrl = photos.find((p: { type: string }) => p.type === 'hero')?.url || w.photos?.hero || ''
+        const galleryUrls = photos.filter((p: { type: string }) => p.type === 'gallery').map((p: { url: string }) => p.url)
         setWedding({
           ...(w as unknown as WeddingData),
           events: events.length > 0 ? events : w.events,
           dressCode: dressCode ?? w.dressCode,
-          photos: photos.length > 0
-            ? {
-                hero: photos.find((p: { type: string }) => p.type === 'hero')?.url ?? photos[0].url,
-                gallery: photos.filter((p: { type: string }) => p.type === 'gallery').map((p: { url: string }) => p.url),
-              }
-            : w.photos,
+          photos: { hero: heroUrl, gallery: galleryUrls },
         } as WeddingData)
         setGuests(g.data)
         setStatus('ready')
