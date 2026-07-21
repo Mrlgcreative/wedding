@@ -178,4 +178,4 @@ export interface TemplateProps {
   data: WeddingData
 }
 
-export type AppTab = 'editor' | 'guests' | 'guest'
+export type AppTab = 'editor' | 'events' | 'guests' | 'guest'

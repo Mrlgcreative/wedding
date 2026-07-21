@@ -250,59 +250,6 @@ export default function EditorForm() {
         </div>
       </section>
 
-      <section>
-        <h2 className="font-serif text-xl font-light">Événements</h2>
-        <div className="mt-4 space-y-6">
-          {wedding.events.map((event, i) => (
-            <div key={event.type} className="rounded-lg border p-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wider opacity-60">
-                {event.type}
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <input
-                  className="rounded-lg border p-2 text-sm"
-                  value={event.name}
-                  onChange={(e) => {
-                    const events = [...wedding.events]
-                    events[i] = { ...events[i], name: e.target.value }
-                    set({ events })
-                  }}
-                />
-                <input
-                  className="rounded-lg border p-2 text-sm"
-                  value={event.address}
-                  onChange={(e) => {
-                    const events = [...wedding.events]
-                    events[i] = { ...events[i], address: e.target.value }
-                    set({ events })
-                  }}
-                />
-                <input
-                  type="date"
-                  className="rounded-lg border p-2 text-sm"
-                  value={event.date}
-                  onChange={(e) => {
-                    const events = [...wedding.events]
-                    events[i] = { ...events[i], date: e.target.value }
-                    set({ events })
-                  }}
-                />
-                <input
-                  type="time"
-                  className="rounded-lg border p-2 text-sm"
-                  value={event.time}
-                  onChange={(e) => {
-                    const events = [...wedding.events]
-                    events[i] = { ...events[i], time: e.target.value }
-                    set({ events })
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       <div className="flex items-center justify-between border-t pt-6">
         <div className="text-sm">
           {saveMsg === 'saved' && <span className="text-green-600">✓ Enregistré</span>}
