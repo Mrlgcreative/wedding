@@ -84,6 +84,7 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
 
   const saveWedding = async () => {
     const current = wedding
+    console.log('saveWedding - current.photos:', current.photos)
     let weddingId = current.id
     if (!persisted) {
       const created = await api.wedding.save(current) as unknown as WeddingData
@@ -94,14 +95,22 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
       await api.wedding.update(current.id, current)
     }
     if (weddingId && current.photos?.hero) {
+      console.log('Tentative sauvegarde photo...')
       try {
         const existing = await api.photos.list(weddingId)
+        console.log('Photos existantes:', existing)
         const oldHero = existing.find((p: { type: string }) => p.type === 'hero')
-        if (oldHero) await api.photos.remove(oldHero.id)
-        await api.photos.save(weddingId, current.photos.hero, 'hero', 0)
+        if (oldHero) {
+          console.log('Suppression ancienne photo:', oldHero.id)
+          await api.photos.remove(oldHero.id)
+        }
+        const saved = await api.photos.save(weddingId, current.photos.hero, 'hero', 0)
+        console.log('✅ Photo sauvegardée:', saved)
       } catch (e) {
-        console.error('⚠️ ERREUR sauvegarde photo (la photo ne sera pas visible):', e)
+        console.error('⚠️ ERREUR sauvegarde photo:', e)
       }
+    } else {
+      console.warn('Condition non remplie - weddingId:', weddingId, 'photos?.hero:', current.photos?.hero)
     }
   }
 
