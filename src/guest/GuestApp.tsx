@@ -1,41 +1,82 @@
-import { useWedding } from '../../hooks/useWedding'
-import { ClassicTemplate, BohoTemplate, MinimalistTemplate } from '../templates'
-import RSVPForm from './RSVPForm'
-import GuestQRCode from './GuestQRCode'
-import { fontPairs } from '../../types/wedding'
-import type { RSVP } from '../../types/wedding'
+import { useState, useEffect } from 'react'
+import type { WeddingData, Guest, RSVP } from '../types/wedding'
+import { fontPairs } from '../types/wedding'
+import { api } from '../api/api'
+import { ClassicTemplate, BohoTemplate, MinimalistTemplate } from '../components/templates'
+import RSVPForm from '../components/guest/RSVPForm'
+import GuestQRCode from '../components/guest/GuestQRCode'
+import { formatDate } from '../utils/helpers'
 
 const templates = { classic: ClassicTemplate, boho: BohoTemplate, minimalist: MinimalistTemplate } as const
 
-export default function GuestInvitation() {
-  const { wedding, guests, addRSVP, loading } = useWedding()
+type Status = 'loading' | 'ready' | 'error'
 
-  if (loading) {
+export default function GuestApp() {
+  const [status, setStatus] = useState<Status>('loading')
+  const [wedding, setWedding] = useState<WeddingData | null>(null)
+  const [guests, setGuests] = useState<Guest[]>([])
+  const [rsvps, setRsvps] = useState<RSVP[]>([])
+
+  const params = new URLSearchParams(window.location.search)
+  const weddingId = params.get('wedding')
+  const urlGuestId = params.get('guest')
+
+  useEffect(() => {
+    if (!weddingId) {
+      setStatus('error')
+      return
+    }
+    ;(async () => {
+      try {
+        const [w, g, events, dressCode, photos] = await Promise.all([
+          api.wedding.get(weddingId),
+          api.guests.list(weddingId),
+          api.events.list(weddingId),
+          api.dressCode.get(weddingId),
+          api.photos.list(weddingId),
+        ])
+        setWedding({
+          ...(w as unknown as WeddingData),
+          events: events.length > 0 ? events : w.events,
+          dressCode: dressCode ?? w.dressCode,
+          photos: photos.length > 0
+            ? {
+                hero: photos.find((p: { type: string }) => p.type === 'hero')?.url ?? photos[0].url,
+                gallery: photos.filter((p: { type: string }) => p.type === 'gallery').map((p: { url: string }) => p.url),
+              }
+            : w.photos,
+        } as WeddingData)
+        setGuests(g.data)
+        setStatus('ready')
+      } catch {
+        setStatus('error')
+      }
+    })()
+  }, [weddingId])
+
+  if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: wedding.dressCode.palette.background }}>
+      <div className="flex min-h-screen items-center justify-center bg-[#faf6f1]">
         <p className="font-serif text-lg opacity-50">Chargement...</p>
       </div>
     )
   }
 
-  const params = new URLSearchParams(window.location.search)
-  const urlGuestId = params.get('guest')
-  const guest = guests.find((g) => g.id === urlGuestId) ?? guests[0]
-  const guestId = guest?.id ?? 'guest-001'
-  const guestName = guest?.name ?? 'Invité'
-
-  const handleRSVP = (rsvp: RSVP) => {
-    addRSVP(rsvp)
-    console.log('RSVP submitted:', rsvp)
+  if (status === 'error' || !wedding) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#faf6f1] p-8 text-center">
+        <p className="font-serif text-xl opacity-60">Invitation introuvable</p>
+        <p className="text-sm opacity-40">Vérifiez le lien ou contactez les mariés.</p>
+      </div>
+    )
   }
 
+  const guest = guests.find((g) => g.id === urlGuestId) ?? guests[0]
+  const guestId = guest?.id ?? ''
+  const guestName = guest?.name ?? 'Invité'
   const palette = wedding.dressCode.palette
   const Template = templates[wedding.template]
   const font = fontPairs.find((f) => f.id === (wedding.fontPair ?? 'classic')) ?? fontPairs[0]
-
-  const openMap = (address: string) => {
-    window.open(`https://www.google.com/maps/search/${encodeURIComponent(address)}`, '_blank')
-  }
 
   const addToCalendar = () => {
     const event = wedding.events[0]
@@ -46,6 +87,15 @@ export default function GuestInvitation() {
       `&details=${encodeURIComponent('Mariage')}` +
       `&location=${encodeURIComponent(event?.address ?? '')}`
     window.open(url, '_blank')
+  }
+
+  const openMap = (address: string) => {
+    window.open(`https://www.google.com/maps/search/${encodeURIComponent(address)}`, '_blank')
+  }
+
+  const handleRSVP = async (rsvp: RSVP) => {
+    await api.rsvp.submit(rsvp)
+    setRsvps((prev) => [...prev, rsvp])
   }
 
   return (
@@ -88,10 +138,12 @@ export default function GuestInvitation() {
       </div>
 
       <div className="mx-auto max-w-3xl space-y-10 px-4 pb-16 pt-8 sm:px-6 lg:px-8">
-        <section>
-          <h2 className="mb-6 text-center font-serif text-xl font-light">Votre invitation personnelle</h2>
-          <GuestQRCode guestId={guestId} guestName={guestName} wedding={wedding} />
-        </section>
+        {guestId && (
+          <section>
+            <h2 className="mb-6 text-center font-serif text-xl font-light">Votre invitation personnelle</h2>
+            <GuestQRCode guestId={guestId} guestName={guestName} wedding={wedding} />
+          </section>
+        )}
 
         <RSVPForm guestId={guestId} onSubmit={handleRSVP} />
       </div>

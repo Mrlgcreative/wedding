@@ -1,19 +1,19 @@
 import { useRef } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { useWedding } from '../../hooks/useWedding'
+import type { WeddingData } from '../../types/wedding'
 
 interface GuestQRCodeProps {
   guestId: string
   guestName: string
+  wedding: WeddingData
 }
 
-export default function GuestQRCode({ guestId, guestName }: GuestQRCodeProps) {
-  const { wedding } = useWedding()
+export default function GuestQRCode({ guestId, guestName, wedding }: GuestQRCodeProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const p = wedding.dressCode.palette
 
-  const base = wedding.website || window.location.origin + '/invitation/' + wedding.id
-  const url = base + '?guest=' + guestId
+  const base = wedding.website || window.location.origin + '?wedding=' + wedding.id
+  const url = base + '&guest=' + guestId
 
   const download = () => {
     const svg = svgRef.current

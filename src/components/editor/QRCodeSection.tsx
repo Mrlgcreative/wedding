@@ -8,7 +8,7 @@ function GuestQRCard({ guest }: { guest: { id: string; name: string } }) {
   const p = wedding.dressCode.palette
 
   const base = wedding.website || window.location.origin
-  const url = base + '?wedding=' + wedding.id + '&guest=' + guest.id
+  const url = base + '/guest.html?wedding=' + wedding.id + '&guest=' + guest.id
 
   const download = () => {
     const svg = svgRef.current
@@ -53,7 +53,7 @@ export default function QRCodeSection() {
   const { wedding, guests } = useWedding()
 
   const base = wedding.website || window.location.origin
-  const globalUrl = base + '?wedding=' + wedding.id
+  const globalUrl = base + '/guest.html?wedding=' + wedding.id
   const copyGlobalLink = () => navigator.clipboard.writeText(globalUrl)
 
   return (

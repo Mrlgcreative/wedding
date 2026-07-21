@@ -73,26 +73,7 @@ function AppContent() {
   )
 }
 
-function GuestView() {
-  return (
-    <div className="min-h-screen bg-white">
-      <GuestInvitation />
-    </div>
-  )
-}
-
 export default function App() {
-  const params = new URLSearchParams(window.location.search)
-  const isGuestPage = params.has('wedding')
-
-  if (isGuestPage) {
-    return (
-      <WeddingProvider>
-        <GuestView />
-      </WeddingProvider>
-    )
-  }
-
   return (
     <WeddingProvider>
       <AppContent />
