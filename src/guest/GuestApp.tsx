@@ -5,7 +5,6 @@ import { api } from '../api/api'
 import { ClassicTemplate, BohoTemplate, MinimalistTemplate } from '../components/templates'
 import RSVPForm from '../components/guest/RSVPForm'
 import GuestQRCode from '../components/guest/GuestQRCode'
-import { formatDate } from '../utils/helpers'
 
 const templates = { classic: ClassicTemplate, boho: BohoTemplate, minimalist: MinimalistTemplate } as const
 
@@ -15,7 +14,6 @@ export default function GuestApp() {
   const [status, setStatus] = useState<Status>('loading')
   const [wedding, setWedding] = useState<WeddingData | null>(null)
   const [guests, setGuests] = useState<Guest[]>([])
-  const [rsvps, setRsvps] = useState<RSVP[]>([])
 
   const params = new URLSearchParams(window.location.search)
   const weddingId = params.get('wedding')
@@ -92,7 +90,6 @@ export default function GuestApp() {
 
   const handleRSVP = async (rsvp: RSVP) => {
     await api.rsvp.submit(rsvp)
-    setRsvps((prev) => [...prev, rsvp])
   }
 
   return (
