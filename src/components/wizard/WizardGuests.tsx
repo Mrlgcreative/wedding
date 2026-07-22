@@ -77,29 +77,45 @@ export default function WizardGuests({ onNext, onBack }: Props) {
       </form>
 
       {guests.length > 0 && (
-        <div className="mt-8 overflow-hidden rounded-xl border">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 font-medium text-[#5c6b5e]">Nom</th>
-                <th className="px-4 py-3 font-medium text-[#5c6b5e]">Email</th>
-                <th className="px-4 py-3 font-medium text-[#5c6b5e]">Accompagnateur</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {guests.map((g) => (
-                <tr key={g.id} className="hover:bg-gray-50/50">
-                  <td className="px-4 py-3 font-medium">{g.name}</td>
-                  <td className="px-4 py-3 text-gray-500">{g.email}</td>
-                  <td className="px-4 py-3">{g.invitedPlusOne ? <span className="text-green-600">Oui</span> : <span className="text-gray-400">Non</span>}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button onClick={() => deleteGuest(g.id)} className="text-xs text-red-500 underline hover:text-red-700">Supprimer</button>
-                  </td>
+        <div className="mt-8">
+          <div className="hidden sm:block overflow-hidden rounded-xl border">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 font-medium text-[#5c6b5e]">Nom</th>
+                  <th className="px-4 py-3 font-medium text-[#5c6b5e]">Email</th>
+                  <th className="px-4 py-3 font-medium text-[#5c6b5e]">Accompagnateur</th>
+                  <th className="px-4 py-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y">
+                {guests.map((g) => (
+                  <tr key={g.id} className="hover:bg-gray-50/50">
+                    <td className="px-4 py-3 font-medium">{g.name}</td>
+                    <td className="px-4 py-3 text-gray-500">{g.email}</td>
+                    <td className="px-4 py-3">{g.invitedPlusOne ? <span className="text-green-600">Oui</span> : <span className="text-gray-400">Non</span>}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button onClick={() => deleteGuest(g.id)} className="text-xs text-red-500 underline hover:text-red-700">Supprimer</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="space-y-3 sm:hidden">
+            {guests.map((g) => (
+              <div key={g.id} className="rounded-xl border bg-white p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium text-sm">{g.name}</p>
+                    <p className="mt-0.5 text-xs text-gray-500">{g.email}</p>
+                    <p className="mt-1 text-xs">{g.invitedPlusOne ? <span className="text-green-600">+1 autorisé</span> : <span className="text-gray-400">Sans accompagnateur</span>}</p>
+                  </div>
+                  <button onClick={() => deleteGuest(g.id)} className="shrink-0 text-xs text-red-500 underline hover:text-red-700">Supprimer</button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

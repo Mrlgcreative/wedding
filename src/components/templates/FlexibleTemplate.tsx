@@ -154,13 +154,13 @@ export default function FlexibleTemplate({ data, palette: paletteProp }: Templat
   const countdownSection = style.showCountdown && ev.countdown.enabled && countdown.days > 0 && (
     <section className="mt-16 text-center">
       <h3 className="font-serif text-sm uppercase tracking-[0.2em] opacity-60">{ev.countdown.label}</h3>
-      <div className="mt-6 grid grid-cols-4 gap-4 text-center">
+      <div className="mt-6 grid grid-cols-4 gap-2 text-center sm:gap-4">
         {(['jours', 'heures', 'minutes', 'secondes'] as const).map((label, i) => {
           const value = [countdown.days, countdown.hours, countdown.minutes, countdown.seconds][i]
           return (
-            <div key={label} className="rounded-lg p-4" style={{ backgroundColor: palette.accent }}>
-              <span className="block font-serif text-3xl font-light">{value}</span>
-              <span className="mt-1 block text-xs uppercase tracking-widest">{label}</span>
+            <div key={label} className="rounded-lg p-2 sm:p-4" style={{ backgroundColor: palette.accent }}>
+              <span className="block font-serif text-xl font-light sm:text-3xl">{value}</span>
+              <span className="mt-1 block text-[10px] uppercase tracking-widest sm:text-xs">{label}</span>
             </div>
           )
         })}
@@ -169,7 +169,7 @@ export default function FlexibleTemplate({ data, palette: paletteProp }: Templat
   )
 
   const storySection = ev.story ? (
-    <section className="mt-16 text-center">
+    <section className="mt-12 text-center sm:mt-16">
       <SectionTitle style={style} palette={palette}>Notre histoire</SectionTitle>
       <p className="mt-6 leading-relaxed text-base/relaxed">{ev.story}</p>
     </section>

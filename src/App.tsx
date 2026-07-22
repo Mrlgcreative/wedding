@@ -47,37 +47,37 @@ function WizardContent() {
       )}
 
       <div className="border-b bg-white/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-          <h1 className="font-[Playfair_Display,serif] text-sm tracking-wide text-[#1a3c34]">E-Wedding</h1>
-          <div className="flex items-center gap-2 text-xs text-[#8a9a8c]">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-3 py-3 sm:px-4">
+          <h1 className="shrink-0 font-[Playfair_Display,serif] text-sm tracking-wide text-[#1a3c34]">E-Wedding</h1>
+          <div className="flex items-center gap-2 overflow-x-auto text-xs text-[#8a9a8c] scrollbar-none">
             {wedding.events.map((ev, i) => (
               <button
                 key={ev.id}
                 onClick={() => { setCurrentIndex(i); setStep('event') }}
-                className={`rounded-full px-3 py-1 transition-colors ${i === currentIndex ? 'bg-[#1a3c34] text-white' : 'hover:bg-gray-100'}`}
+                className={`shrink-0 rounded-full px-2 py-1 transition-colors sm:px-3 ${i === currentIndex ? 'bg-[#1a3c34] text-white' : 'hover:bg-gray-100'}`}
               >
                 {ev.name || `Événement ${i + 1}`}
               </button>
             ))}
-            <button onClick={addEvent} className="rounded-full px-3 py-1 hover:bg-gray-100 text-[#d4af37]">+</button>
+            <button onClick={addEvent} className="shrink-0 rounded-full px-2 py-1 hover:bg-gray-100 text-[#d4af37] sm:px-3">+</button>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-4 py-6">
-        <div className="flex items-center justify-center gap-2 mb-8">
+      <div className="mx-auto max-w-4xl px-3 py-6 sm:px-4">
+        <div className="mb-8 flex items-center justify-center gap-1 sm:gap-2">
           {steps.map((s, i) => (
-            <div key={s.id} className="flex items-center gap-2">
+            <div key={s.id} className="flex items-center gap-1 sm:gap-2">
               <button
                 onClick={() => setStep(s.id as WizardStep)}
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors ${
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors ${
                   i === stepIndex ? 'bg-[#1a3c34] text-white' : i < stepIndex ? 'bg-[#d4af37] text-white' : 'bg-gray-200 text-gray-400'
                 }`}
               >
                 {i + 1}
               </button>
-              <span className={`text-xs ${i === stepIndex ? 'text-[#1a3c34] font-medium' : 'text-gray-400'}`}>{s.label}</span>
-              {i < steps.length - 1 && <div className="h-px w-6 bg-gray-200" />}
+              <span className={`hidden text-xs sm:inline ${i === stepIndex ? 'text-[#1a3c34] font-medium' : 'text-gray-400'}`}>{s.label}</span>
+              {i < steps.length - 1 && <div className="h-px w-4 bg-gray-200 sm:w-6" />}
             </div>
           ))}
         </div>

@@ -13,7 +13,7 @@ export default function WizardTemplate({ onNext, onBack }: Props) {
         <h2 className="font-[Playfair_Display,serif] text-2xl font-light text-[#1a3c34]">Choisir un modèle</h2>
         <p className="mt-2 text-sm text-[#8a9a8c]">Sélectionnez le style de votre invitation.</p>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
           {templateStyles.map((t) => (
             <button
               key={t.id}

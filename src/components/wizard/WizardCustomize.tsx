@@ -56,14 +56,14 @@ export default function WizardCustomize({ onNext, onBack }: Props) {
           </div>
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-[#5c6b5e]">Photo des mariés</label>
-            <div className="mt-1 flex gap-2">
+            <div className="mt-1 flex flex-col gap-2 sm:flex-row">
               <input
                 className="flex-1 rounded-lg border border-gray-200 p-3 text-sm outline-none focus:border-[#d4af37]"
                 placeholder="URL de la photo"
                 value={ev.photos?.hero ?? ''}
                 onChange={(e) => setNested('photos', { ...ev.photos, hero: e.target.value, gallery: ev.photos?.gallery ?? [] } as typeof ev.photos)}
               />
-              <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium hover:bg-gray-100">
+              <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium hover:bg-gray-100 sm:py-2">
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => {
                   const file = e.target.files?.[0]
                   if (file) {
@@ -106,13 +106,13 @@ export default function WizardCustomize({ onNext, onBack }: Props) {
           </div>
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-[#5c6b5e]">Palette de couleurs</label>
-            <div className="mt-2 flex gap-4">
+            <div className="mt-2 flex flex-wrap gap-3 sm:gap-4">
               {(Object.keys(ev.dressCode.palette) as (keyof typeof ev.dressCode.palette)[]).map((key) => (
-                <div key={key} className="flex items-center gap-2">
-                  <span className="text-xs capitalize text-[#8a9a8c]">{key}</span>
+                <div key={key} className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-[10px] capitalize text-[#8a9a8c] sm:text-xs">{key}</span>
                   <input
                     type="color"
-                    className="h-8 w-8 cursor-pointer rounded border"
+                    className="h-7 w-7 cursor-pointer rounded border sm:h-8 sm:w-8"
                     value={ev.dressCode.palette[key]}
                     onChange={(e) =>
                       setNested('dressCode', { ...ev.dressCode, palette: { ...ev.dressCode.palette, [key]: e.target.value } })

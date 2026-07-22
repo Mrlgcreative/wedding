@@ -60,19 +60,19 @@ export default function Homepage({ onStart }: HomepageProps) {
 
         <div className="mt-16 h-px w-12 bg-[#d4af37]/40" />
 
-        <h1 className="mt-12 font-[Playfair_Display,serif] text-6xl font-light leading-[1.1] tracking-wide text-[#1a3c34] sm:text-8xl">
+        <h1 className="mt-12 font-[Playfair_Display,serif] text-5xl font-light leading-[1.1] tracking-wide text-[#1a3c34] sm:text-6xl md:text-8xl">
           L'art de
           <br />
           <span className="italic font-normal">dire oui</span>
         </h1>
 
-        <p className="mt-8 max-w-lg font-[Cormorant_Garamond,serif] text-lg leading-relaxed text-[#5c6b5e]">
+        <p className="mt-6 max-w-lg px-4 font-[Cormorant_Garamond,serif] text-base leading-relaxed text-[#5c6b5e] sm:mt-8 sm:text-lg">
           Créez une invitation de mariage d'exception. Choisissez parmi 15 modèles, personnalisez chaque détail et partagez avec vos proches.
         </p>
 
         <button
           onClick={onStart}
-          className="group relative mt-12 inline-flex items-center gap-3 overflow-hidden rounded-full bg-[#1a3c34] px-10 py-4 font-[Cormorant_Garamond,serif] text-lg text-white transition-all hover:bg-[#2a4c44] active:scale-[0.97]"
+          className="group relative mt-10 inline-flex items-center gap-3 overflow-hidden rounded-full bg-[#1a3c34] px-8 py-3 font-[Cormorant_Garamond,serif] text-base text-white transition-all hover:bg-[#2a4c44] active:scale-[0.97] sm:mt-12 sm:px-10 sm:py-4 sm:text-lg"
         >
           <span className="relative z-10">Créer mon invitation</span>
           <svg className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -80,13 +80,13 @@ export default function Homepage({ onStart }: HomepageProps) {
           </svg>
         </button>
 
-        <div className="mt-20 h-px w-24 bg-[#d4af37]/20" />
+        <div className="mt-16 h-px w-24 bg-[#d4af37]/20 sm:mt-20" />
 
-        <p className="mt-8 font-[Cormorant_Garamond,serif] text-base italic text-[#8a9a8c]">
+        <p className="mt-6 font-[Cormorant_Garamond,serif] text-sm italic text-[#8a9a8c] sm:mt-8 sm:text-base">
           <AnimatedWords />
         </p>
 
-        <div className="mt-20 grid w-full max-w-2xl grid-cols-3 gap-8">
+        <div className="mt-12 grid w-full max-w-2xl grid-cols-1 gap-8 sm:mt-20 sm:grid-cols-3">
           {[
             { step: '01', title: 'Événement', desc: 'Définissez la date, le lieu et les horaires de votre célébration' },
             { step: '02', title: 'Modèle', desc: 'Sélectionnez parmi 15 styles d\'invitation raffinés' },
