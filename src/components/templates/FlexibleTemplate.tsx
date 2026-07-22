@@ -88,64 +88,6 @@ function CoupleNames({ couple, style, palette }: { couple: { partner1: string; p
   )
 }
 
-function EventCard({ event, style, palette }: { event: { id: string; type: string; name: string; address: string; time: string; notes?: string }; style: TemplateStyle; palette: { primary: string; secondary: string; accent: string; background: string; text: string } }) {
-  switch (style.eventCard) {
-    case 'accent-left':
-      return (
-        <div className="flex gap-4 rounded-lg p-5" style={{ backgroundColor: `${palette.accent}40` }}>
-          <div className="w-1 shrink-0 rounded-full" style={{ backgroundColor: palette.secondary }} />
-          <div className="flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: palette.secondary }}>{event.type}</p>
-                <h3 className="mt-1 font-serif text-base">{event.name}</h3>
-              </div>
-              <span className="shrink-0 font-serif text-sm" style={{ color: palette.secondary }}>{event.time}</span>
-            </div>
-            <p className="mt-2 text-xs">{event.address}</p>
-            {event.notes && <p className="mt-2 text-xs italic opacity-60">{event.notes}</p>}
-          </div>
-        </div>
-      )
-    case 'filled':
-      return (
-        <div className="rounded-xl p-5 text-center" style={{ backgroundColor: `${palette.accent}50` }}>
-          <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: palette.secondary }}>{event.type}</p>
-          <h3 className="mt-1 font-serif text-base">{event.name}</h3>
-          <p className="mt-1 text-xs" style={{ color: palette.secondary }}>{event.time}</p>
-          <p className="mt-2 text-xs">{event.address}</p>
-          {event.notes && <p className="mt-2 text-xs italic opacity-60">{event.notes}</p>}
-        </div>
-      )
-    case 'minimal':
-      return (
-        <div className="flex items-start justify-between gap-4 py-5">
-          <div>
-            <span className="text-[10px] uppercase tracking-[0.15em] opacity-40">{event.type}</span>
-            <h3 className="mt-0.5 text-sm font-medium">{event.name}</h3>
-            <p className="mt-0.5 text-xs opacity-50">{event.address}</p>
-            {event.notes && <p className="mt-1 text-xs italic opacity-40">{event.notes}</p>}
-          </div>
-          <span className="shrink-0 text-xs font-medium tabular-nums" style={{ color: palette.secondary }}>{event.time}</span>
-        </div>
-      )
-    default:
-      return (
-        <div className="rounded-lg border p-6" style={{ borderColor: palette.accent }}>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-widest" style={{ color: palette.secondary }}>{event.type}</p>
-              <h3 className="mt-1 font-serif text-lg">{event.name}</h3>
-            </div>
-            <p className="shrink-0 font-serif text-sm" style={{ color: palette.secondary }}>{event.time}</p>
-          </div>
-          <p className="mt-2 text-sm">{event.address}</p>
-          {event.notes && <p className="mt-2 text-sm italic opacity-80">{event.notes}</p>}
-        </div>
-      )
-  }
-}
-
 function SectionTitle({ children, style, palette }: { children: React.ReactNode; style: TemplateStyle; palette: { primary: string; secondary: string; accent: string; background: string; text: string } }) {
   return (
     <div className="flex flex-col items-center gap-2">
@@ -196,56 +138,65 @@ function PhotoHero({ photo, style, palette, couple }: { photo?: { hero?: string 
   }
 }
 
-export default function FlexibleTemplate({ data }: TemplateProps) {
-  const { couple, date, events, dressCode, story, photos } = data
-  const palette = dressCode.palette
-  const style = templateStyles.find((s) => s.id === data.template) ?? templateStyles[0]
-  const [countdown, setCountdown] = useState(getCountdown(date))
+export default function FlexibleTemplate({ data, palette: paletteProp }: TemplateProps) {
+  const ev = data
+  const palette = paletteProp ?? ev.dressCode.palette
+  const style = templateStyles.find((s) => s.id === ev.template) ?? templateStyles[0]
+  const [countdown, setCountdown] = useState(getCountdown(ev.date))
   useEffect(() => {
-    if (!style.showCountdown) return
-    const timer = setInterval(() => setCountdown(getCountdown(date)), 1000)
+    if (!style.showCountdown || !ev.countdown.enabled) return
+    const timer = setInterval(() => setCountdown(getCountdown(ev.date)), 1000)
     return () => clearInterval(timer)
-  }, [date, style.showCountdown])
+  }, [ev.date, style.showCountdown, ev.countdown.enabled])
 
-  const heroPhoto = <PhotoHero photo={photos} style={style} palette={palette} couple={couple} />
+  const heroPhoto = <PhotoHero photo={ev.photos} style={style} palette={palette} couple={ev.couple} />
 
-  const countdownSection = style.showCountdown && countdown.days > 0 && (
-    <div className="grid grid-cols-4 gap-4 text-center">
-      {(['jours', 'heures', 'minutes', 'secondes'] as const).map((label, i) => {
-        const value = [countdown.days, countdown.hours, countdown.minutes, countdown.seconds][i]
-        return (
-          <div key={label} className="rounded-lg p-4" style={{ backgroundColor: palette.accent }}>
-            <span className="block font-serif text-3xl font-light">{value}</span>
-            <span className="mt-1 block text-xs uppercase tracking-widest">{label}</span>
-          </div>
-        )
-      })}
-    </div>
-  )
-
-  const storySection = story ? (
+  const countdownSection = style.showCountdown && ev.countdown.enabled && countdown.days > 0 && (
     <section className="mt-16 text-center">
-      <SectionTitle style={style} palette={palette}>Notre histoire</SectionTitle>
-      <p className="mt-6 leading-relaxed text-base/relaxed">{story}</p>
-    </section>
-  ) : null
-
-  const eventsSection = events.length > 0 ? (
-    <section className="mt-16">
-      <SectionTitle style={style} palette={palette}>Au programme</SectionTitle>
-      <div className={`mt-8 ${style.eventCard === 'minimal' ? 'space-y-0 divide-y' : 'space-y-6'}`} style={style.eventCard === 'minimal' ? { borderColor: palette.accent } : undefined}>
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} style={style} palette={palette} />
-        ))}
+      <h3 className="font-serif text-sm uppercase tracking-[0.2em] opacity-60">{ev.countdown.label}</h3>
+      <div className="mt-6 grid grid-cols-4 gap-4 text-center">
+        {(['jours', 'heures', 'minutes', 'secondes'] as const).map((label, i) => {
+          const value = [countdown.days, countdown.hours, countdown.minutes, countdown.seconds][i]
+          return (
+            <div key={label} className="rounded-lg p-4" style={{ backgroundColor: palette.accent }}>
+              <span className="block font-serif text-3xl font-light">{value}</span>
+              <span className="mt-1 block text-xs uppercase tracking-widest">{label}</span>
+            </div>
+          )
+        })}
       </div>
     </section>
+  )
+
+  const storySection = ev.story ? (
+    <section className="mt-16 text-center">
+      <SectionTitle style={style} palette={palette}>Notre histoire</SectionTitle>
+      <p className="mt-6 leading-relaxed text-base/relaxed">{ev.story}</p>
+    </section>
   ) : null
+
+  const eventsSection = (
+    <section className="mt-16">
+      <SectionTitle style={style} palette={palette}>{ev.type || 'Au programme'}</SectionTitle>
+      <div className="mt-8 rounded-lg border p-6" style={{ borderColor: palette.accent }}>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest" style={{ color: palette.secondary }}>{ev.type}</p>
+            <h3 className="mt-1 font-serif text-lg">{ev.name}</h3>
+          </div>
+          <p className="shrink-0 font-serif text-sm" style={{ color: palette.secondary }}>{ev.time}</p>
+        </div>
+        <p className="mt-2 text-sm">{ev.address}</p>
+        {ev.notes && <p className="mt-2 text-sm italic opacity-80">{ev.notes}</p>}
+      </div>
+    </section>
+  )
 
   const dressCodeSection = style.showDressCode ? (
     <section className="mt-16 text-center">
       <SectionTitle style={style} palette={palette}>Dress Code</SectionTitle>
-      <p className="mt-4 font-serif text-lg" style={{ color: palette.primary }}>{dressCode.theme}</p>
-      <p className="mt-4 text-sm leading-relaxed">{dressCode.instructions}</p>
+      <p className="mt-4 font-serif text-lg" style={{ color: palette.primary }}>{ev.dressCode.theme}</p>
+      <p className="mt-4 text-sm leading-relaxed">{ev.dressCode.instructions}</p>
       <div className="mt-6 flex items-center justify-center gap-3">
         {[palette.primary, palette.secondary, palette.accent].map((color) => (
           <span key={color} className="inline-block h-8 w-8 rounded-full border border-white/20 shadow-sm" style={{ backgroundColor: color }} />
@@ -259,28 +210,28 @@ export default function FlexibleTemplate({ data }: TemplateProps) {
   const footerBg = style.layout === 'modern' || style.layout === 'elegant' ? palette.primary : palette.background
 
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: palette.background, color: palette.text }}>
+    <div className="min-h-screen w-full" style={{ backgroundColor: palette.background, color: palette.text, '--font-couple-size': `${ev.coupleFontSize}rem` } as React.CSSProperties}>
       {style.photo === 'fullscreen' || style.photo === 'top-banner' ? (
         <header className={`relative ${style.photo === 'top-banner' ? '' : 'h-screen'} w-full overflow-hidden`}>
           {heroPhoto}
-          {(style.photo === 'fullscreen' || !photos?.hero) && (
+          {(style.photo === 'fullscreen' || !ev.photos?.hero) && (
             <div className={`absolute inset-0 flex flex-col items-center justify-center text-center text-white ${style.showArch ? '' : 'px-6'}`}>
               {style.showArch && (
                 <div className="relative mx-auto flex w-full max-w-lg flex-col items-center px-8">
                   <Decoration style={style} palette={palette} />
                   <span className="font-serif text-sm tracking-[0.35em] uppercase opacity-80">Mariage</span>
-                  <CoupleNames couple={couple} style={style} palette={palette} />
+                  <CoupleNames couple={ev.couple} style={style} palette={palette} />
                   <div className="mt-6 h-px w-16 bg-white/50" />
-                  <p className="mt-5 font-serif text-base tracking-wide opacity-80">{formatDate(date)}</p>
+                  <p className="mt-5 font-serif text-base tracking-wide opacity-80">{formatDate(ev.date)}</p>
                 </div>
               )}
               {!style.showArch && (
                 <>
                   {style.decoration !== 'none' && <Decoration style={style} palette={{ ...palette, secondary: '#ffffff' }} />}
                   <span className="mt-4 font-serif text-sm tracking-[0.35em] uppercase opacity-80">Mariage</span>
-                  <CoupleNames couple={couple} style={style} palette={{ ...palette, secondary: '#ffffff' }} />
+                  <CoupleNames couple={ev.couple} style={style} palette={{ ...palette, secondary: '#ffffff' }} />
                   <div className="mt-6 h-px w-16 bg-white/50" />
-                  <p className="mt-5 font-serif text-base tracking-wide opacity-80">{formatDate(date)}</p>
+                  <p className="mt-5 font-serif text-base tracking-wide opacity-80">{formatDate(ev.date)}</p>
                 </>
               )}
               <div className="absolute bottom-10 animate-bounce">
@@ -296,9 +247,9 @@ export default function FlexibleTemplate({ data }: TemplateProps) {
           {heroPhoto}
           <div className="mt-6 px-4">
             <span className="font-serif text-sm tracking-[0.35em] uppercase opacity-60">Mariage</span>
-            <CoupleNames couple={couple} style={style} palette={palette} />
+            <CoupleNames couple={ev.couple} style={style} palette={palette} />
             <Decoration style={style} palette={palette} />
-            <p className="mt-4 font-serif text-base opacity-70">{formatDate(date)}</p>
+            <p className="mt-4 font-serif text-base opacity-70">{formatDate(ev.date)}</p>
           </div>
         </div>
       )}

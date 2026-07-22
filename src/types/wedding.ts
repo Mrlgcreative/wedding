@@ -11,8 +11,6 @@ export interface FontPair {
   bodyStack: string
 }
 
-export type EventType = string
-
 export type GuestStatus = 'pending' | 'confirmed' | 'declined'
 
 export interface ColorPalette {
@@ -27,16 +25,6 @@ export interface DressCode {
   theme: string
   instructions: string
   palette: ColorPalette
-}
-
-export interface EventDetails {
-  id: string
-  type: EventType
-  name: string
-  address: string
-  date: string
-  time: string
-  notes?: string
 }
 
 export interface Couple {
@@ -54,20 +42,49 @@ export interface WeddingPhotos {
   gallery?: string[]
 }
 
-export interface WeddingData {
+export interface Guest {
   id: string
+  name: string
+  email: string
+  phone?: string
+  invitedPlusOne: boolean
+  status: GuestStatus
+}
+
+export interface RSVP {
+  guestId: string
+  confirmed: boolean
+  plusOne: boolean
+  plusOneName?: string
+  dietaryRestrictions?: string
+  allergies?: string
+  message?: string
+  submittedAt: string
+}
+
+export interface EventInvitation {
+  id: string
+  name: string
+  type: string
+  address: string
+  date: string
+  time: string
+  notes?: string
   template: TemplateType
   fontPair: FontPairId
   coupleFontSize: number
   couple: Couple
-  date: string
-  address?: string
-  countdown: CountdownConfig
-  events: EventDetails[]
-  dressCode: DressCode
-  photos?: WeddingPhotos
   story?: string
+  photos?: WeddingPhotos
+  dressCode: DressCode
+  countdown: CountdownConfig
+  guests: Guest[]
+}
+
+export interface WeddingData {
+  id: string
   website?: string
+  events: EventInvitation[]
 }
 
 export const fontPairs: FontPair[] = [
@@ -153,30 +170,9 @@ export const fontPairs: FontPair[] = [
   },
 ]
 
-export interface Guest {
-  id: string
-  name: string
-  email: string
-  phone?: string
-  invitedPlusOne: boolean
-  status: GuestStatus
-  weddingId: string
-  eventTypes?: EventType[]
-}
-
-export interface RSVP {
-  guestId: string
-  confirmed: boolean
-  plusOne: boolean
-  plusOneName?: string
-  dietaryRestrictions?: string
-  allergies?: string
-  message?: string
-  submittedAt: string
-}
-
 export interface TemplateProps {
-  data: WeddingData
+  data: EventInvitation
+  palette: ColorPalette
 }
 
-export type AppTab = 'event' | 'template' | 'customize' | 'guests' | 'preview'
+export type WizardStep = 'event' | 'template' | 'customize' | 'guests' | 'preview'

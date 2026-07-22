@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import type { AppTab } from './types/wedding'
+import type { WizardStep } from './types/wedding'
 import Homepage from './components/Homepage'
-import EventManager from './components/editor/EventManager'
-import TemplateSelector from './components/editor/TemplateSelector'
-import EditorForm from './components/editor/EditorForm'
-import GuestManager from './components/editor/GuestManager'
-import GuestInvitation from './components/guest/GuestInvitation'
+import WizardEvent from './components/wizard/WizardEvent'
+import WizardTemplate from './components/wizard/WizardTemplate'
+import WizardCustomize from './components/wizard/WizardCustomize'
+import WizardGuests from './components/wizard/WizardGuests'
+import WizardPreview from './components/wizard/WizardPreview'
 import { WeddingProvider, useWeddingContext } from './contexts/WeddingContext'
 
-const tabs: { id: AppTab; label: string }[] = [
+const steps: { id: WizardStep; label: string }[] = [
   { id: 'event', label: 'Événement' },
   { id: 'template', label: 'Modèle' },
   { id: 'customize', label: 'Personnalisation' },
@@ -16,126 +16,89 @@ const tabs: { id: AppTab; label: string }[] = [
   { id: 'preview', label: 'Aperçu' },
 ]
 
-function AppContent() {
-  const [activeTab, setActiveTab] = useState<AppTab>('event')
-  const [menuOpen, setMenuOpen] = useState(false)
-  const { loading, error } = useWeddingContext()
+function WizardContent() {
+  const { loading, error, currentIndex, setCurrentIndex, addEvent, wedding } = useWeddingContext()
+  const [step, setStep] = useState<WizardStep>('event')
+  const stepIndex = steps.findIndex((s) => s.id === step)
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#faf6f1]">
         <p className="font-serif text-lg opacity-50">Chargement...</p>
       </div>
     )
   }
 
+  const goNext = () => {
+    const i = stepIndex + 1
+    if (i < steps.length) setStep(steps[i].id as WizardStep)
+  }
+  const goBack = () => {
+    const i = stepIndex - 1
+    if (i >= 0) setStep(steps[i].id as WizardStep)
+  }
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#faf6f1]">
       {error && (
         <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-sm text-amber-700">
-          {error} — Vous pouvez tout de même utiliser l'éditeur ci-dessous, les données seront sauvegardées plus tard.
+          {error}
         </div>
       )}
 
-      <header className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-          <h1 className="font-serif text-lg tracking-wide">E-Wedding</h1>
-
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="flex h-8 w-8 items-center justify-center rounded-md sm:hidden"
-            aria-label="Menu"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
-
-          <nav className="hidden gap-1 rounded-lg bg-gray-100 p-1 sm:flex">
-            {tabs.map((tab) => (
+      <div className="border-b bg-white/90 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
+          <h1 className="font-[Playfair_Display,serif] text-sm tracking-wide text-[#1a3c34]">E-Wedding</h1>
+          <div className="flex items-center gap-2 text-xs text-[#8a9a8c]">
+            {wedding.events.map((ev, i) => (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                key={ev.id}
+                onClick={() => { setCurrentIndex(i); setStep('event') }}
+                className={`rounded-full px-3 py-1 transition-colors ${i === currentIndex ? 'bg-[#1a3c34] text-white' : 'hover:bg-gray-100'}`}
               >
-                {tab.label}
+                {ev.name || `Événement ${i + 1}`}
               </button>
             ))}
-          </nav>
-        </div>
-
-        {menuOpen && (
-          <div className="border-t px-4 py-3 sm:hidden">
-            <nav className="flex flex-col gap-1">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => { setActiveTab(tab.id); setMenuOpen(false) }}
-                  className={`rounded-md px-3 py-2 text-left text-sm font-medium transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
+            <button onClick={addEvent} className="rounded-full px-3 py-1 hover:bg-gray-100 text-[#d4af37]">+</button>
           </div>
-        )}
-      </header>
-
-      <main>
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-          {activeTab === 'event' && (
-            <div className="rounded-xl border p-6 sm:p-10">
-              <h2 className="mb-8 font-serif text-2xl font-light">Événements</h2>
-              <EventManager />
-            </div>
-          )}
-          {activeTab === 'template' && (
-            <div className="rounded-xl border p-6 sm:p-10">
-              <h2 className="mb-8 font-serif text-2xl font-light">Modèle d'invitation</h2>
-              <TemplateSelector />
-            </div>
-          )}
-          {activeTab === 'customize' && (
-            <div className="rounded-xl border p-6 sm:p-10">
-              <h2 className="mb-8 font-serif text-2xl font-light">Personnaliser l'invitation</h2>
-              <EditorForm />
-            </div>
-          )}
-          {activeTab === 'guests' && (
-            <div className="rounded-xl border p-6 sm:p-10">
-              <h2 className="mb-8 font-serif text-2xl font-light">Gestion des invités</h2>
-              <GuestManager />
-            </div>
-          )}
-          {activeTab === 'preview' && <GuestInvitation />}
         </div>
-      </main>
+      </div>
+
+      <div className="mx-auto max-w-4xl px-4 py-6">
+        <div className="flex items-center justify-center gap-2 mb-8">
+          {steps.map((s, i) => (
+            <div key={s.id} className="flex items-center gap-2">
+              <button
+                onClick={() => setStep(s.id as WizardStep)}
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors ${
+                  i === stepIndex ? 'bg-[#1a3c34] text-white' : i < stepIndex ? 'bg-[#d4af37] text-white' : 'bg-gray-200 text-gray-400'
+                }`}
+              >
+                {i + 1}
+              </button>
+              <span className={`text-xs ${i === stepIndex ? 'text-[#1a3c34] font-medium' : 'text-gray-400'}`}>{s.label}</span>
+              {i < steps.length - 1 && <div className="h-px w-6 bg-gray-200" />}
+            </div>
+          ))}
+        </div>
+
+        {step === 'event' && <WizardEvent onNext={goNext} />}
+        {step === 'template' && <WizardTemplate onNext={goNext} onBack={goBack} />}
+        {step === 'customize' && <WizardCustomize onNext={goNext} onBack={goBack} />}
+        {step === 'guests' && <WizardGuests onNext={goNext} onBack={goBack} />}
+        {step === 'preview' && <WizardPreview onBack={goBack} />}
+      </div>
     </div>
   )
 }
 
 export default function App() {
-  const [started, setStarted] = useState(false)
-
-  if (!started) {
-    return <Homepage onStart={() => setStarted(true)} />
-  }
-
+  const [started, setStarted] = useState(() => localStorage.getItem('ew-started') === 'true')
+  if (!started)
+    return <Homepage onStart={() => { setStarted(true); localStorage.setItem('ew-started', 'true') }} />
   return (
     <WeddingProvider>
-      <AppContent />
+      <WizardContent />
     </WeddingProvider>
   )
 }

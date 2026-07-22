@@ -1,25 +1,54 @@
 const FORGE_BASE = import.meta.env.VITE_FORGE_PROJECT ?? ''
 const FORGE_API_KEY = import.meta.env.VITE_FORGE_API_KEY ?? ''
 
-import type { WeddingData, Guest, RSVP, EventDetails, DressCode, EventType } from '../types/wedding'
+import type { WeddingData, EventInvitation, Guest, RSVP, WeddingPhotos } from '../types/wedding'
+
+function defaultEvent(): EventInvitation {
+  return {
+    id: crypto.randomUUID(),
+    name: '',
+    type: '',
+    address: '',
+    date: '',
+    time: '',
+    notes: '',
+    template: 'classic',
+    fontPair: 'classic',
+    coupleFontSize: 2.5,
+    couple: { partner1: '', partner2: '' },
+    story: '',
+    photos: { hero: '', gallery: [] },
+    dressCode: {
+      theme: '',
+      instructions: '',
+      palette: { primary: '#1a3c34', secondary: '#d4af37', accent: '#e8d5c4', background: '#faf6f1', text: '#2d2d2d' },
+    },
+    countdown: { enabled: true, label: 'Notre mariage' },
+    guests: [],
+  }
+}
 
 function toForgeWedding(w: WeddingData) {
-  const dateStr = w.date ? new Date(w.date).toISOString() : new Date().toISOString()
   return {
-    template: w.template,
-    font_pair: w.fontPair,
-    couple_font_size: w.coupleFontSize,
-    partner1: w.couple.partner1,
-    partner2: w.couple.partner2,
-    date: dateStr,
-    address: w.address ?? '',
-    countdown_enabled: w.countdown.enabled,
-    story: w.story ?? '',
     website: w.website ?? '',
     events_json: JSON.stringify(w.events),
-    dress_code_json: JSON.stringify(w.dressCode),
-    photos_hero: w.photos?.hero ?? '',
-    photos_gallery: JSON.stringify(w.photos?.gallery ?? []),
+  }
+}
+
+function migrateEvent(e: Partial<EventInvitation>): EventInvitation {
+  const def = defaultEvent()
+  return {
+    ...def,
+    ...e,
+    couple: { ...def.couple, ...(e.couple ?? {}) },
+    photos: { ...def.photos, ...(e.photos ?? {}) } as WeddingPhotos,
+    dressCode: {
+      ...def.dressCode,
+      ...(e.dressCode ?? {}),
+      palette: { ...def.dressCode.palette, ...((e.dressCode?.palette ?? {}) as Record<string, string>) },
+    },
+    countdown: { ...def.countdown, ...(e.countdown ?? {}) },
+    guests: Array.isArray(e.guests) ? e.guests : [],
   }
 }
 
@@ -31,56 +60,31 @@ function fromForgeWedding(w: Record<string, unknown>): WeddingData {
   const fields = (item?.data && typeof item.data === 'object' && !Array.isArray(item.data)
     ? item.data
     : (item ?? w)) as Record<string, unknown>
-  let events: EventDetails[] = []
-  try { events = JSON.parse((fields.events_json as string) ?? '[]') } catch { events = [] }
-  let dressCode: DressCode = {
-    theme: '',
-    instructions: '',
-    palette: { primary: '#1a3c34', secondary: '#d4af37', accent: '#e8d5c4', background: '#faf6f1', text: '#2d2d2d' },
-  }
-  try { dressCode = JSON.parse((fields.dress_code_json as string) ?? '') } catch { /* keep default */ }
-  let gallery: string[] = []
-  try { gallery = JSON.parse((fields.photos_gallery as string) ?? '[]') } catch { gallery = [] }
+  let raw: Partial<EventInvitation>[] = []
+  try { raw = JSON.parse((fields.events_json as string) ?? '[]') } catch { raw = [] }
+  const events = raw.length ? raw.map(migrateEvent) : [defaultEvent()]
   return {
     id: (item?.id as string) ?? (fields.id as string) ?? '',
-    template: (fields.template as WeddingData['template']) ?? 'classic',
-    fontPair: (fields.font_pair as WeddingData['fontPair']) ?? 'classic',
-    coupleFontSize: (fields.couple_font_size as number) ?? 2.5,
-    couple: { partner1: (fields.partner1 as string) ?? '', partner2: (fields.partner2 as string) ?? '' },
-    date: (fields.date as string) ?? '',
-    address: (fields.address as string) ?? '',
-    countdown: { enabled: (fields.countdown_enabled as boolean) ?? true, label: 'Notre mariage' },
-    events,
-    dressCode,
-    photos: {
-      hero: (fields.photos_hero as string) ?? '',
-      gallery,
-    },
-    story: (fields.story as string) ?? '',
     website: (fields.website as string) ?? '',
+    events,
   }
 }
 
 function toForgeGuest(g: Guest) {
   return {
-    wedding_id: g.weddingId,
+    wedding_id: '',
     name: g.name,
     email: g.email,
     phone: g.phone ?? null,
     invited_plus_one: g.invitedPlusOne,
     status: g.status,
-    event_types: g.eventTypes ?? [],
   }
 }
 
 function fromForgeGuest(g: Record<string, unknown>): Guest {
   const hasOwnId = !!(g.id as string)
-  const item = hasOwnId
-    ? g
-    : (Array.isArray(g.data) ? g.data[0] : g.data) as Record<string, unknown> | undefined
-  const fields = (item?.data && typeof item.data === 'object' && !Array.isArray(item.data)
-    ? item.data
-    : (item ?? g)) as Record<string, unknown>
+  const item = hasOwnId ? g : (Array.isArray(g.data) ? g.data[0] : g.data) as Record<string, unknown> | undefined
+  const fields = (item?.data && typeof item.data === 'object' && !Array.isArray(item.data) ? item.data : (item ?? g)) as Record<string, unknown>
   return {
     id: (item?.id as string) ?? (fields.id as string) ?? '',
     name: (fields.name as string) ?? '',
@@ -88,61 +92,6 @@ function fromForgeGuest(g: Record<string, unknown>): Guest {
     phone: (fields.phone as string) ?? '',
     invitedPlusOne: (fields.invited_plus_one as boolean) ?? false,
     status: (fields.status as Guest['status']) ?? 'pending',
-    weddingId: (fields.wedding_id as string) ?? '',
-    eventTypes: (fields.event_types as EventType[]) ?? [],
-  }
-}
-
-function toForgeEvent(weddingId: string, e: EventDetails, i: number) {
-  return {
-    wedding_id: weddingId,
-    type: e.type,
-    name: e.name,
-    address: e.address,
-    date: e.date,
-    time: e.time,
-    notes: e.notes ?? '',
-    sort_order: i,
-    id: e.id,
-  }
-}
-
-function fromForgeEvent(e: Record<string, unknown>): EventDetails {
-  return {
-    id: (e.id as string) ?? (e.event_id as string) ?? crypto.randomUUID(),
-    type: (e.type as string) ?? 'ceremonie',
-    name: (e.name as string) ?? '',
-    address: (e.address as string) ?? '',
-    date: (e.date as string) ?? '',
-    time: (e.time as string) ?? '',
-    notes: (e.notes as string) ?? '',
-  }
-}
-
-function toForgeDressCode(weddingId: string, d: DressCode) {
-  return {
-    wedding_id: weddingId,
-    theme: d.theme,
-    instructions: d.instructions,
-    palette_primary: d.palette.primary,
-    palette_secondary: d.palette.secondary,
-    palette_accent: d.palette.accent,
-    palette_background: d.palette.background,
-    palette_text: d.palette.text,
-  }
-}
-
-function fromForgeDressCode(d: Record<string, unknown>): DressCode {
-  return {
-    theme: (d.theme as string) ?? '',
-    instructions: (d.instructions as string) ?? '',
-    palette: {
-      primary: (d.palette_primary as string) ?? '#1a3c34',
-      secondary: (d.palette_secondary as string) ?? '#d4af37',
-      accent: (d.palette_accent as string) ?? '#e8d5c4',
-      background: (d.palette_background as string) ?? '#faf6f1',
-      text: (d.palette_text as string) ?? '#2d2d2d',
-    },
   }
 }
 
@@ -172,27 +121,10 @@ function fromForgeRSVP(r: Record<string, unknown>): RSVP {
   }
 }
 
-function toForgePhoto(weddingId: string, url: string, type: string, sortOrder: number) {
-  return { wedding_id: weddingId, url, type, sort_order: sortOrder }
-}
-
-function fromForgePhoto(p: Record<string, unknown>) {
-  return {
-    id: p.id as string,
-    weddingId: p.wedding_id as string,
-    url: p.url as string,
-    type: p.type as string,
-    sortOrder: p.sort_order as number,
-  }
-}
-
 async function request<T>(method: string, table: string, body?: unknown): Promise<T> {
   const res = await fetch(`${FORGE_BASE}/${table}`, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': FORGE_API_KEY,
-    },
+    headers: { 'Content-Type': 'application/json', 'x-api-key': FORGE_API_KEY },
     ...(body ? { body: JSON.stringify(body) } : {}),
   })
   if (!res.ok) {
@@ -227,16 +159,8 @@ export const api = {
       const res = await request<{ data: Record<string, unknown>[] }>('GET', `guests?wedding_id=${weddingId}`)
       return { data: res.data.map(fromForgeGuest) }
     },
-    get: async (id: string) => {
-      const g = await request<Record<string, unknown>>('GET', `guests/${id}`)
-      return fromForgeGuest(g)
-    },
     save: async (data: Guest) => {
       const g = await request<Record<string, unknown>>('POST', 'guests', toForgeGuest(data))
-      return fromForgeGuest(g)
-    },
-    update: async (id: string, data: Partial<Guest>) => {
-      const g = await request<Record<string, unknown>>('PATCH', `guests/${id}`, toForgeGuest(data as Guest))
       return fromForgeGuest(g)
     },
     delete: (id: string) => request<void>('DELETE', `guests/${id}`),
@@ -252,67 +176,6 @@ export const api = {
       return fromForgeRSVP(res.data[0])
     },
   },
-  events: {
-    list: async (weddingId: string) => {
-      const res = await request<{ data: Record<string, unknown>[] }>('GET', `events?wedding_id=${weddingId}`)
-      return res.data.map(fromForgeEvent)
-    },
-    save: async (weddingId: string, data: EventDetails, index: number) => {
-      const created = await request<Record<string, unknown>>('POST', 'events', toForgeEvent(weddingId, data, index))
-      return fromForgeEvent(created)
-    },
-    update: async (id: string, weddingId: string, data: EventDetails, index: number) => {
-      const updated = await request<Record<string, unknown>>('PATCH', `events/${id}`, toForgeEvent(weddingId, data, index))
-      return fromForgeEvent(updated)
-    },
-    remove: (id: string) => request<void>('DELETE', `events/${id}`),
-  },
-  dressCode: {
-    get: async (weddingId: string) => {
-      const res = await request<{ data: Record<string, unknown>[] }>('GET', `dress_codes?wedding_id=${weddingId}`)
-      if (!res.data?.length) return null
-      return fromForgeDressCode(res.data[0])
-    },
-    save: async (weddingId: string, data: DressCode) => {
-      const created = await request<Record<string, unknown>>('POST', 'dress_codes', toForgeDressCode(weddingId, data))
-      return fromForgeDressCode(created)
-    },
-    update: async (id: string, data: DressCode, weddingId: string) => {
-      const updated = await request<Record<string, unknown>>('PATCH', `dress_codes/${id}`, toForgeDressCode(weddingId, data))
-      return fromForgeDressCode(updated)
-    },
-  },
-  photos: {
-    list: async (weddingId: string) => {
-      const res = await fetch(`${FORGE_BASE}/photos?wedding_id=${weddingId}`, {
-        headers: { 'x-api-key': FORGE_API_KEY },
-      })
-      if (!res.ok) return []
-      const json = await res.json()
-      const items = Array.isArray(json) ? json : json.data ?? []
-      try { return items.map(fromForgePhoto) } catch { return [] }
-    },
-    save: async (weddingId: string, url: string, type: string, sortOrder: number) => {
-      const body = toForgePhoto(weddingId, url, type, sortOrder)
-      const res = await fetch(`${FORGE_BASE}/photos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': FORGE_API_KEY },
-        body: JSON.stringify(body),
-      })
-      if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(`Photo save failed: ${res.status} ${text.slice(0, 500)}`)
-      }
-      const json = await res.json()
-      console.log('Photo save response:', json)
-      try { return fromForgePhoto(json) } catch { return fromForgePhoto(json.data ?? json) }
-    },
-    remove: async (id: string) => {
-      const res = await fetch(`${FORGE_BASE}/photos/${id}`, {
-        method: 'DELETE',
-        headers: { 'X-Api-Key': FORGE_API_KEY },
-      })
-      if (!res.ok) throw new Error(`Photo delete failed: ${res.status}`)
-    },
-  },
 }
+
+export { defaultEvent }
