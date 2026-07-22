@@ -84,11 +84,11 @@ export default function ClassicTemplate({ data }: TemplateProps) {
           <div className="mt-2 h-px w-16 mx-auto" style={{ backgroundColor: palette.secondary }} />
           <div className="mt-8 space-y-6">
             {events.map((event) => (
-              <div key={event.type} className="rounded-lg border p-6" style={{ borderColor: palette.accent }}>
+              <div key={event.id} className="rounded-lg border p-6" style={{ borderColor: palette.accent }}>
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs uppercase tracking-widest" style={{ color: palette.secondary }}>
-                      {event.type === 'mairie' ? 'Mairie' : event.type === 'ceremonie' ? 'Cérémonie' : 'Réception'}
+                      {event.type}
                     </p>
                     <h3 className="mt-1 font-serif text-lg">{event.name}</h3>
                   </div>

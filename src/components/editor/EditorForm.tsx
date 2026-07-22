@@ -1,14 +1,7 @@
 import { useState } from 'react'
-import type { WeddingData, TemplateType, FontPairId } from '../../types/wedding'
-import { fontPairs } from '../../types/wedding'
+import type { WeddingData } from '../../types/wedding'
 import { useWedding } from '../../hooks/useWedding'
 import QRCodeSection from './QRCodeSection'
-
-const templates: { id: TemplateType; label: string; desc: string }[] = [
-  { id: 'classic', label: 'Classic Chic', desc: 'Élégance intemporelle, tons sobres et typographie serif' },
-  { id: 'boho', label: 'Champêtre / Boho', desc: 'Ambiance nature, tons terreux et détails floraux' },
-  { id: 'minimalist', label: 'Minimaliste Moderne', desc: 'Design épuré, monochrome, ligne claire' },
-]
 
 export default function EditorForm() {
   const { wedding, setLocalWedding, saveWedding, persisted } = useWedding()
@@ -35,60 +28,6 @@ export default function EditorForm() {
   return (
     <div className="space-y-10">
       <section>
-        <h2 className="font-serif text-xl font-light">Modèle d'invitation</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          {templates.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => set({ template: t.id })}
-              className={`rounded-xl border-2 p-4 text-left transition-all ${
-                wedding.template === t.id
-                  ? 'border-gray-900 bg-gray-50 shadow-sm'
-                  : 'border-transparent bg-gray-50 hover:border-gray-300'
-              }`}
-            >
-              <span className="block font-serif text-base">{t.label}</span>
-              <span className="mt-1 block text-xs opacity-60">{t.desc}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h2 className="font-serif text-xl font-light">Police d'écriture</h2>
-        <div className="mt-4">
-          <select
-            value={wedding.fontPair}
-            onChange={(e) => set({ fontPair: e.target.value as FontPairId })}
-            className="w-full rounded-lg border p-3 text-base"
-          >
-            {fontPairs.map((fp) => (
-              <option key={fp.id} value={fp.id} style={{ fontFamily: fp.headingStack }}>
-                {fp.label} — {fp.heading} + {fp.body}
-              </option>
-            ))}
-          </select>
-        </div>
-      </section>
-
-      <section>
-        <h2 className="font-serif text-xl font-light">Taille des noms</h2>
-        <div className="mt-4 flex items-center gap-4">
-          <input
-            type="range"
-            min="1"
-            max="6"
-            step="0.25"
-            value={wedding.coupleFontSize}
-            onChange={(e) => set({ coupleFontSize: parseFloat(e.target.value) })}
-            className="flex-1 accent-gray-900"
-          />
-          <span className="w-12 text-right text-sm tabular-nums">{wedding.coupleFontSize}rem</span>
-        </div>
-      </section>
-
-      <section>
         <h2 className="font-serif text-xl font-light">Les mariés</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
@@ -114,16 +53,11 @@ export default function EditorForm() {
         </div>
       </section>
 
-      <section>
-        <h2 className="font-serif text-xl font-light">Adresse du mariage</h2>
-        <div className="mt-4">
-          <input
-            className="mt-1 w-full rounded-lg border p-2 text-sm"
-            placeholder="123 Rue de la Paix, 75000 Paris"
-            value={wedding.address ?? ''}
-            onChange={(e) => set({ address: e.target.value })}
-          />
-        </div>
+      <section className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6">
+        <h2 className="font-serif text-base font-light">Événements</h2>
+        <p className="mt-1 text-sm opacity-60">
+          Les dates, adresses et horaires sont gérés dans l'onglet « Événements ». Les événements créés seront automatiquement inclus sur l'invitation.
+        </p>
       </section>
 
       <section>

@@ -103,14 +103,14 @@ export default function BohoTemplate({ data }: TemplateProps) {
           <h2 className="text-center font-serif text-xl font-light italic">Au programme</h2>
           <div className="mt-8 space-y-8">
             {events.map((event) => (
-              <div key={event.type} className="relative pl-8">
+              <div key={event.id} className="relative pl-8">
                 <div className="absolute left-0 top-0 bottom-0 w-px" style={{ backgroundColor: p.secondary }} />
                 <div className="absolute left-[-4px] top-1 h-2.5 w-2.5 rounded-full border-2" style={{ borderColor: p.secondary, backgroundColor: p.background }} />
                 <div className="rounded-2xl border p-5" style={{ borderColor: p.accent }}>
                   <div className="flex items-start justify-between">
                     <div>
                       <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: p.secondary }}>
-                        {event.type === 'mairie' ? 'Mairie' : event.type === 'ceremonie' ? 'Cérémonie' : 'Réception'}
+                        {event.type}
                       </span>
                       <h3 className="mt-1 font-serif text-base">{event.name}</h3>
                     </div>

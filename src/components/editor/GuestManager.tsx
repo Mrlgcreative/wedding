@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useWedding } from '../../hooks/useWedding'
-import type { Guest, EventType } from '../../types/wedding'
+import type { Guest } from '../../types/wedding'
 
 export default function GuestManager() {
   const { wedding, guests, addGuest, deleteGuest, persisted } = useWedding()
@@ -8,7 +8,7 @@ export default function GuestManager() {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [invitedPlusOne, setInvitedPlusOne] = useState(false)
-  const [selectedEvents, setSelectedEvents] = useState<EventType[]>([])
+  const [selectedEvents, setSelectedEvents] = useState<string[]>([])
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -107,16 +107,16 @@ export default function GuestManager() {
               ) : (
                 <div className="mt-1 flex flex-wrap gap-4">
                   {createdEvents.map((event) => (
-                    <label key={event.type} className="flex items-center gap-1.5 text-sm">
+                    <label key={event.id} className="flex items-center gap-1.5 text-sm">
                       <input
                         type="checkbox"
                         className="h-4 w-4"
-                        checked={selectedEvents.includes(event.type)}
+                        checked={selectedEvents.includes(event.id)}
                         onChange={(e) =>
                           setSelectedEvents(
                             e.target.checked
-                              ? [...selectedEvents, event.type]
-                              : selectedEvents.filter((t) => t !== event.type)
+                              ? [...selectedEvents, event.id]
+                              : selectedEvents.filter((t) => t !== event.id)
                           )
                         }
                       />
@@ -183,11 +183,11 @@ export default function GuestManager() {
                     <td className="px-4 py-3">
                       {guest.eventTypes && guest.eventTypes.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
-                          {guest.eventTypes.map((t) => {
-                            const ev = wedding.events.find((e) => e.type === t)
+                          {guest.eventTypes.map((id) => {
+                            const ev = wedding.events.find((e) => e.id === id)
                             return (
-                              <span key={t} className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs">
-                                {ev?.name || t}
+                              <span key={id} className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs">
+                                {ev?.name || id}
                               </span>
                             )
                           })}

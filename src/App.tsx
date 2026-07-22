@@ -1,20 +1,23 @@
 import { useState } from 'react'
 import type { AppTab } from './types/wedding'
-import EditorForm from './components/editor/EditorForm'
+import Homepage from './components/Homepage'
 import EventManager from './components/editor/EventManager'
+import TemplateSelector from './components/editor/TemplateSelector'
+import EditorForm from './components/editor/EditorForm'
 import GuestManager from './components/editor/GuestManager'
 import GuestInvitation from './components/guest/GuestInvitation'
 import { WeddingProvider, useWeddingContext } from './contexts/WeddingContext'
 
 const tabs: { id: AppTab; label: string }[] = [
-  { id: 'editor', label: 'Éditeur' },
-  { id: 'events', label: 'Événements' },
+  { id: 'event', label: 'Événement' },
+  { id: 'template', label: 'Modèle' },
+  { id: 'customize', label: 'Personnalisation' },
   { id: 'guests', label: 'Invités' },
-  { id: 'guest', label: 'Aperçu' },
+  { id: 'preview', label: 'Aperçu' },
 ]
 
 function AppContent() {
-  const [activeTab, setActiveTab] = useState<AppTab>('editor')
+  const [activeTab, setActiveTab] = useState<AppTab>('event')
   const [menuOpen, setMenuOpen] = useState(false)
   const { loading, error } = useWeddingContext()
 
@@ -92,16 +95,22 @@ function AppContent() {
 
       <main>
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-          {activeTab === 'editor' && (
-            <div className="rounded-xl border p-6 sm:p-10">
-              <h2 className="mb-8 font-serif text-2xl font-light">Personnaliser l'invitation</h2>
-              <EditorForm />
-            </div>
-          )}
-          {activeTab === 'events' && (
+          {activeTab === 'event' && (
             <div className="rounded-xl border p-6 sm:p-10">
               <h2 className="mb-8 font-serif text-2xl font-light">Événements</h2>
               <EventManager />
+            </div>
+          )}
+          {activeTab === 'template' && (
+            <div className="rounded-xl border p-6 sm:p-10">
+              <h2 className="mb-8 font-serif text-2xl font-light">Modèle d'invitation</h2>
+              <TemplateSelector />
+            </div>
+          )}
+          {activeTab === 'customize' && (
+            <div className="rounded-xl border p-6 sm:p-10">
+              <h2 className="mb-8 font-serif text-2xl font-light">Personnaliser l'invitation</h2>
+              <EditorForm />
             </div>
           )}
           {activeTab === 'guests' && (
@@ -110,7 +119,7 @@ function AppContent() {
               <GuestManager />
             </div>
           )}
-          {activeTab === 'guest' && <GuestInvitation />}
+          {activeTab === 'preview' && <GuestInvitation />}
         </div>
       </main>
     </div>
@@ -118,6 +127,12 @@ function AppContent() {
 }
 
 export default function App() {
+  const [started, setStarted] = useState(false)
+
+  if (!started) {
+    return <Homepage onStart={() => setStarted(true)} />
+  }
+
   return (
     <WeddingProvider>
       <AppContent />

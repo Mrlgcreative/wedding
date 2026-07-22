@@ -12,9 +12,9 @@ const defaultWedding: WeddingData = {
   address: '',
   countdown: { enabled: true, label: 'Notre mariage' },
   events: [
-    { type: 'mairie', name: '', address: '', date: '', time: '', notes: '' },
-    { type: 'ceremonie', name: '', address: '', date: '', time: '', notes: '' },
-    { type: 'reception', name: '', address: '', date: '', time: '', notes: '' },
+    { id: crypto.randomUUID(), type: 'mairie', name: 'Mairie', address: '', date: '', time: '', notes: '' },
+    { id: crypto.randomUUID(), type: 'ceremonie', name: 'Cérémonie', address: '', date: '', time: '', notes: '' },
+    { id: crypto.randomUUID(), type: 'reception', name: 'Réception', address: '', date: '', time: '', notes: '' },
   ],
   dressCode: {
     theme: '',

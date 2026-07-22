@@ -103,12 +103,14 @@ function toForgeEvent(weddingId: string, e: EventDetails, i: number) {
     time: e.time,
     notes: e.notes ?? '',
     sort_order: i,
+    id: e.id,
   }
 }
 
 function fromForgeEvent(e: Record<string, unknown>): EventDetails {
   return {
-    type: (e.type as EventDetails['type']) ?? 'ceremonie',
+    id: (e.id as string) ?? (e.event_id as string) ?? crypto.randomUUID(),
+    type: (e.type as string) ?? 'ceremonie',
     name: (e.name as string) ?? '',
     address: (e.address as string) ?? '',
     date: (e.date as string) ?? '',

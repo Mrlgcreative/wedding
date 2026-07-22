@@ -1,11 +1,9 @@
 import { useWedding } from '../../hooks/useWedding'
-import { ClassicTemplate, BohoTemplate, MinimalistTemplate } from '../templates'
+import { FlexibleTemplate } from '../templates'
 import RSVPForm from './RSVPForm'
 import GuestQRCode from './GuestQRCode'
 import { fontPairs } from '../../types/wedding'
 import type { RSVP } from '../../types/wedding'
-
-const templates = { classic: ClassicTemplate, boho: BohoTemplate, minimalist: MinimalistTemplate } as const
 
 export default function GuestInvitation() {
   const { wedding, guests, addRSVP, loading } = useWedding()
@@ -30,7 +28,6 @@ export default function GuestInvitation() {
   }
 
   const palette = wedding.dressCode.palette
-  const Template = templates[wedding.template]
   const font = fontPairs.find((f) => f.id === (wedding.fontPair ?? 'classic')) ?? fontPairs[0]
 
   const openMap = (address: string) => {
@@ -56,7 +53,7 @@ export default function GuestInvitation() {
         </div>
       )}
 
-      <Template data={wedding} />
+      <FlexibleTemplate data={wedding} />
 
       <div className="sticky bottom-0 left-0 right-0 border-t bg-white/95 backdrop-blur-sm" style={{ borderColor: palette.accent }}>
         <div className="mx-auto flex max-w-3xl gap-3 px-4 py-4">
@@ -72,7 +69,7 @@ export default function GuestInvitation() {
           </button>
           {wedding.events.map((event) => (
             <button
-              key={event.type}
+              key={event.id}
               onClick={() => openMap(event.address)}
               className="flex flex-1 items-center justify-center gap-2 rounded-lg border py-2 text-sm font-medium transition-colors hover:bg-gray-50"
               style={{ borderColor: palette.primary, color: palette.primary }}
@@ -81,7 +78,7 @@ export default function GuestInvitation() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              {event.type === 'mairie' ? 'Mairie' : event.type === 'ceremonie' ? 'Église' : 'Réception'}
+              {event.name}
             </button>
           ))}
         </div>

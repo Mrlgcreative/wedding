@@ -84,10 +84,10 @@ export default function MinimalistTemplate({ data }: TemplateProps) {
         <section className="mt-16">
           <div className="space-y-0 divide-y" style={{ borderColor: p.accent }}>
             {events.map((event) => (
-              <div key={event.type} className="flex items-start justify-between gap-4 py-5">
+              <div key={event.id} className="flex items-start justify-between gap-4 py-5">
                 <div>
                   <span className="text-[10px] uppercase tracking-[0.15em] opacity-40">
-                    {event.type === 'mairie' ? 'Mairie' : event.type === 'ceremonie' ? 'Cérémonie' : 'Réception'}
+                    {event.type}
                   </span>
                   <h3 className="mt-0.5 text-sm font-medium">{event.name}</h3>
                   <p className="mt-0.5 text-xs opacity-50">{event.address}</p>

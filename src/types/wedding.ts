@@ -1,4 +1,4 @@
-export type TemplateType = 'classic' | 'boho' | 'minimalist'
+export type TemplateType = 'classic' | 'boho' | 'minimalist' | 'elegant' | 'romantic' | 'modern' | 'rustic' | 'luxury' | 'vintage' | 'tropical' | 'geometric' | 'playful' | 'classic-modern' | 'soft' | 'bold'
 
 export type FontPairId = 'classic' | 'elegant' | 'romantic' | 'modern' | 'chic' | 'bergstena' | 'daisy' | 'meaculpa' | 'staylove' | 'remington'
 
@@ -11,7 +11,7 @@ export interface FontPair {
   bodyStack: string
 }
 
-export type EventType = 'mairie' | 'ceremonie' | 'reception'
+export type EventType = string
 
 export type GuestStatus = 'pending' | 'confirmed' | 'declined'
 
@@ -30,6 +30,7 @@ export interface DressCode {
 }
 
 export interface EventDetails {
+  id: string
   type: EventType
   name: string
   address: string
@@ -178,4 +179,4 @@ export interface TemplateProps {
   data: WeddingData
 }
 
-export type AppTab = 'editor' | 'events' | 'guests' | 'guest'
+export type AppTab = 'event' | 'template' | 'customize' | 'guests' | 'preview'
